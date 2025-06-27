@@ -35,7 +35,8 @@ public class SecurityConfig {
                         .requestMatchers("/authenticate",
                                 "/usuario/cadastrar",
                                 "/usuario/esqueceu-senha",
-                                "/usuario/validar-troca-senha"
+                                "/usuario/validar-troca-senha",
+                                "/swagger-ui/*"
                               ).permitAll() // Permitir endpoints públicos
                         .anyRequest().authenticated() // Exigir autenticação para os demais endpoints
                 )
