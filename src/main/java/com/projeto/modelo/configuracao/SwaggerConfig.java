@@ -24,9 +24,9 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Parlavox API")
+                        .title("Gabriel checkout API")
                         .version("1.0")
-                        .description("Documentação da API do Novo Parlavox")
+                        .description("Documentação da API do Novo Gabriel checkout")
                 )
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",
