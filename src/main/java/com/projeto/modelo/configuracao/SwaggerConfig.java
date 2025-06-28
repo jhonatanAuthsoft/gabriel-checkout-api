@@ -45,7 +45,7 @@ public class SwaggerConfig {
     public GroupedOpenApi publicApi(OperationCustomizer parametrizarPaginacaoCustomizada) {
         return GroupedOpenApi.builder()
                 .group("public")
-                .pathsToMatch("/api/**")
+                .pathsToMatch("/**")
                 .addOperationCustomizer(parametrizarPaginacaoCustomizada)
                 .build();
     }
