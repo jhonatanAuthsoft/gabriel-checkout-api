@@ -20,6 +20,7 @@ public class Produto {
 
     @Embedded
     private DadosProduto dadosProduto;
+
     @OneToOne(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
     private Checkout checkout;
 
