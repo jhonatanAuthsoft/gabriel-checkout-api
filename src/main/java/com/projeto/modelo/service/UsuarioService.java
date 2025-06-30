@@ -4,7 +4,7 @@ import com.projeto.modelo.controller.dto.request.CadastraUsuarioDTO;
 import com.projeto.modelo.controller.dto.request.UsuarioEsqueceuSenhaRequestDTO;
 import com.projeto.modelo.controller.dto.request.ValidaTrocaSenhaRequestDTO;
 import com.projeto.modelo.controller.dto.response.AuthenticatedResposeDTO;
-import com.projeto.modelo.controller.dto.response.UsuarioResposeDTO;
+import com.projeto.modelo.controller.dto.response.UsuarioResponseDTO;
 import com.projeto.modelo.model.entity.Usuario;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +18,7 @@ public interface UsuarioService {
 
     void validaTrocaSenha(ValidaTrocaSenhaRequestDTO validaTrocaSenhaRequestDTO);
 
-    UsuarioResposeDTO cadastraUsuario(CadastraUsuarioDTO cadastraUsuarioDTO);
+    UsuarioResponseDTO cadastraUsuario(CadastraUsuarioDTO cadastraUsuarioDTO);
 
     void esqueceuSenha(UsuarioEsqueceuSenhaRequestDTO usuarioEsqueceuSenhaRequestDTO);
 }

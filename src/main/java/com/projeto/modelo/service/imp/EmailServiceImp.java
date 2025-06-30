@@ -7,11 +7,13 @@ import com.projeto.modelo.repository.EmailService;
 import com.projeto.modelo.repository.UsuarioRepository;
 import com.projeto.modelo.util.TemplateUtils;
 import jakarta.annotation.PostConstruct;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Random;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.mail.*;
@@ -20,12 +22,11 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Random;
 
 @Service
 @Log4j2
@@ -54,6 +55,8 @@ public class EmailServiceImp implements EmailService {
 
     private Properties mailProperties;
 
+
+
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -69,10 +72,9 @@ public class EmailServiceImp implements EmailService {
         mailProperties.put("mail.smtp.starttls.enable", starttlsEnable);
         mailProperties.put("mail.smtp.host", smtpHost);
         mailProperties.put("mail.smtp.port", smtpPort);
-       // mailProperties.put("mail.smtp.ssl.trust", sslTrust);
+        // mailProperties.put("mail.smtp.ssl.trust", sslTrust);
     }
-
-
+    
     @Async
     @Override
     public void cadastraUsuario(String toEmail, String senha) {
@@ -94,7 +96,7 @@ public class EmailServiceImp implements EmailService {
                 this.usuarioRepository.save(emailUsuario.get());
             }
             String corpoEmail = this.corpoEsqueceuSenha(codigoVerificador);
-            this.enviaEmail(toEmail, corpoEmail, "SeuLarMS - Recuperação de senha");
+            this.enviaEmail(toEmail, corpoEmail, "Gabriel Checkout - Recuperação de senha");
         } catch (Exception e) {
             log.error("Erro ao enviar e-mail de recuperação de senha", e);
         }
@@ -102,6 +104,10 @@ public class EmailServiceImp implements EmailService {
 
     private String corpoEsqueceuSenha(int codigoVerificador) throws IOException {
         return TemplateUtils.htmlToString(ESQUECEU_SENHA).replaceAll("#codigo#", String.valueOf(codigoVerificador));
+    }
+
+    private String mudarCampoNoHtml(String campo, String valor, String htmlPath) throws IOException {
+        return TemplateUtils.htmlToString(htmlPath).replaceAll(campo, String.valueOf(valor));
     }
 
     private String corpoCadastroUsuario(String senha) throws IOException {

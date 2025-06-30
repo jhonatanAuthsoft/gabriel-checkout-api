@@ -1,0 +1,473 @@
+{
+	"info": {
+		"_postman_id": "a9e6b4d3-1b3b-4e6a-9b1b-9e9d9e9d9e9d",
+		"name": "Checkout API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Authenticate",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/authenticate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"authenticate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "BancoInter",
+			"item": [
+				{
+					"name": "Gera Pix",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"chave\": \"+5599999999999\",\n    \"valor\": 0.01\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/inter/gera-pix",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"gera-pix"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consulta Pix",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/inter/consulta-pix?txid=YOUR_TXID",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"consulta-pix"
+							],
+							"query": [
+								{
+									"key": "txid",
+									"value": "YOUR_TXID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar Webhook Pix",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"webhookUrl\": \"https://your-webhook-url.com/callback\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/inter/cadastrar-webhook-pix",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"cadastrar-webhook-pix"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar Webhook Pix",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/inter/buscar-webhook-pix",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"buscar-webhook-pix"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Webhook Pix",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/inter/deletar-webhook-pix",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"deletar-webhook-pix"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Callback Pix",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"endToEndId\": \"E12345678202101011234s12345678901\",\n        \"txid\": \"YOUR_TXID\",\n        \"valor\": \"0.01\",\n        \"horario\": \"2021-01-01T12:34:56.789Z\"\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/inter/callback/pix",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"callback",
+								"pix"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Gerar Boleto",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pagador\": {\n        \"cpfCnpj\": \"12345678901\",\n        \"nome\": \"Sacado Exemplo\",\n        \"email\": \"sacado.exemplo@email.com\",\n        \"telefone\": \"99999999999\",\n        \"cep\": \"99999999\",\n        \"numero\": \"123\",\n        \"complemento\": \"Apto 101\",\n        \"bairro\": \"Centro\",\n        \"cidade\": \"Cidade Exemplo\",\n        \"uf\": \"EX\"\n    },\n    \"valorNominal\": 100.00,\n    \"dataVencimento\": \"2024-12-31\",\n    \"numDiasAgenda\": 30\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/inter/gerar-boleto",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"gerar-boleto"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar Boleto",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/inter/consultar-boleto?codigoSolicitacao=YOUR_CODIGO_SOLICITACAO",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"consultar-boleto"
+							],
+							"query": [
+								{
+									"key": "codigoSolicitacao",
+									"value": "YOUR_CODIGO_SOLICITACAO"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar Boleto PDF",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/inter/consultar-boleto-pdf?codigoSolicitacao=YOUR_CODIGO_SOLICITACAO",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"consultar-boleto-pdf"
+							],
+							"query": [
+								{
+									"key": "codigoSolicitacao",
+									"value": "YOUR_CODIGO_SOLICITACAO"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar Webhook Boleto",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"webhookUrl\": \"https://your-webhook-url.com/callback\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/inter/cadastrar-webhook-boleto",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"cadastrar-webhook-boleto"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar Webhook Boleto",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/inter/buscar-webhook-boleto",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"buscar-webhook-boleto"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Webhook Boleto",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/inter/deletar-webhook-boleto",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"deletar-webhook-boleto"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Callback Boleto",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"nossoNumero\": \"123456789012345\",\n        \"seuNumero\": \"YOUR_SEU_NUMERO\",\n        \"situacao\": \"PAGO\",\n        \"dataPagamento\": \"2024-01-01\",\n        \"valorPago\": 100.00\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/inter/callback/boleto",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"inter",
+								"callback",
+								"boleto"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Configuracao",
+			"item": [
+				{
+					"name": "Teste Swagger",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teste-swagger?id=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teste-swagger"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Usuario",
+			"item": [
+				{
+					"name": "Validar Troca Senha",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"YOUR_TOKEN\",\n    \"novaSenha\": \"new_password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/usuario/validar-troca-senha",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usuario",
+								"validar-troca-senha"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password\",\n    \"email\": \"testuser@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/usuario/cadastrar",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usuario",
+								"cadastrar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Esqueceu Senha",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/usuario/esqueceu-senha",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usuario",
+								"esqueceu-senha"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		}
+	]
+} 

@@ -4,19 +4,21 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projeto.modelo.model.enums.PermissaoStatus;
 import com.projeto.modelo.model.enums.UsuarioStatus;
 import jakarta.persistence.*;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Builder
 @Data
@@ -31,6 +33,9 @@ public class Usuario implements UserDetails, Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(name = "name", nullable = false)
+    private String nome;
+
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
@@ -40,6 +45,13 @@ public class Usuario implements UserDetails, Serializable {
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private UsuarioStatus status;
+
+    @CPF(message = "O CPF deve ser Válido!")
+    @Column(name = "cpf")
+    private String cpf;
+
+    @Column(name = "celular")
+    private String celular;
 
     @CreationTimestamp
     @JsonIgnore

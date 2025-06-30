@@ -1,0 +1,100 @@
+{
+  "dados": {
+    "produto": {
+      "DadosGerais": {
+        "codigo": "",
+        "chave": "",
+        "nome": "",
+        "codigoSku": "",
+        "descricao": ""
+      },
+      "formatoCategoria": {
+        "formato": "",
+        "categoria": ""
+      },
+      "cobranca": {
+        "tipoCobranca": "UNICA", // ou "RECORRENTE"
+        "peridiocidade": "MENSAL", // ou MENSAL, BIMESTRAL, TRIMESTRAL, SEMESTRAL, ANUAL
+        "preco": 0.0,
+        "gratis": false,
+        "tipoPrimeiraParcela": "IGUAL", // ou "DIFERENCIADO", "CARENCIA", "GRATIS"
+        "valorPrimeiraParcela": 0.0, // Caso seja informado DIFERENCIADO acima, esse campo se torna obrigatório
+        "carencia": 0
+      },
+      "disponibilidade": {
+        "disponivel": true,
+        "quantidadeMaxima": 0
+      },
+      "suporteGarantia": {
+        "email": "",
+        "telefoneSuporte": [
+          {
+            "numero": "",
+            "mostrarNoCheckout": true
+          },
+          {
+            "numero": "",
+            "mostrarNoCheckout": false
+          }
+        ]
+      },
+      "urlPersonalizada": ""
+    },
+    "checkout": {
+      "exibicoes": {
+        "exibirImagensProduto": true,
+        "exibirSelos": true,
+        "exibirFaq": true
+      },
+      "perguntas": [
+        {
+          "pergunta": "",
+          "resposta": ""
+        }
+      ]
+    },
+    "planos": [
+      {
+        "nome": "",
+        "peridiocidade": "MENSAL" // ou TRIMESTRAL, SEMESTRAL, ANUAL,
+        "descricao": "",
+        "preco": "",
+        "gratis": false,
+        "primeiraParcela": "",
+        "referencia": "",
+        "sku": ""
+      }
+    ],
+    "cupom": [
+      {
+        "codigoCupom": "",
+        "tipoDesconto": "VALOR" // ou PERCENTUAL
+        "valor": "500", // REPRESENTA R$ 500,00
+        "url": ""
+      },
+      {
+        "codigoCupom": "",
+        "tipoDesconto": "PERCENTUAL" // ou PERCENTUAL
+        "valor": "60", // REPRESENTA 60%
+        "url": ""
+      }
+    ],
+    "mapeamentoImagens": [
+      {
+        "nomeArquivo": "exemplo1.jpg",
+        "tipo": "SELO"
+      },
+      {
+        "nomeArquivo": "exemplo2.jpg",
+        "tipo": "FOTO"
+      },
+      {
+        "nomeArquivo": "exemplo3.jpg",
+        "tipo": "BANNER"
+      }
+    ]
+  },
+  "imagens": [
+    // MultipartFile (binários dos arquivos)
+  ]
+}
