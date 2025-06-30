@@ -10,7 +10,7 @@ public interface ProdutoService {
     ProdutoResponseDTO cadastrarProduto(CadastrarProdutoDTO cadastrarProdutoDTO);
 
     ProdutoResponseDTO editarProduto(CadastrarProdutoDTO cadastrarProdutoDTO);
--
+
     void deletarProduto(Long productId);
 
     Page<ProdutoResponseListDTO> listarTodosOsProdutos(String searchText, int page, int size);
