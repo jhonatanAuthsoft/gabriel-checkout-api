@@ -68,7 +68,7 @@
     "cupom": [
       {
         "codigoCupom": "",
-        "tipoDesconto": "VALOR" // ou PERCENTUAL
+        "tipoDesconto": "VALOR" // ou VALOR
         "valor": "500", // REPRESENTA R$ 500,00
         "url": ""
       },
