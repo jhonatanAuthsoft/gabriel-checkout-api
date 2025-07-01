@@ -1,5 +1,7 @@
 package com.projeto.modelo.model.entity.produto;
 
+import com.projeto.modelo.model.enums.Peridiocidade;
+import com.projeto.modelo.model.enums.TipoCobranca;
 import com.projeto.modelo.model.enums.TipoPrimeiraParcela;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -11,8 +13,10 @@ import java.math.BigDecimal;
 @Builder
 public record Cobranca(
         @Column(name = "tipo_cobranca")
-        String tipoCobranca,
-        String peridiocidade,
+        @Enumerated(EnumType.STRING)
+        TipoCobranca tipoCobranca,
+        @Enumerated(EnumType.STRING)
+        Peridiocidade peridiocidade,
         BigDecimal preco,
         Boolean gratis,
         @Enumerated(EnumType.STRING)

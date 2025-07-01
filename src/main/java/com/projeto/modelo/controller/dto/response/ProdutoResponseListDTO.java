@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 public record ProdutoResponseListDTO(
         Long id,
         String nome,
-        Long codigo,
+        String codigo,
         BigDecimal valor,
         Long afiliados,
         Long vendasTotais,

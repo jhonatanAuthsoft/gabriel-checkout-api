@@ -21,6 +21,7 @@ public class Plano {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String nome;
+    @Enumerated(EnumType.STRING)
     private Peridiocidade peridiocidade;
     private String descricao;
     private BigDecimal preco;
