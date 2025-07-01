@@ -20,6 +20,6 @@ public class Pergunta {
     private String resposta;
     @JoinColumn(name = "checkout_id")
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private Checkout checkout;
 }

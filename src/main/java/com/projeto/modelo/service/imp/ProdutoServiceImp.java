@@ -32,6 +32,7 @@ public class ProdutoServiceImp implements ProdutoService {
 
     @Autowired
     private ProdutoMapper produtoMapper;
+
     @Autowired
     private ImagemMapper imagemMapper;
 
@@ -55,10 +56,10 @@ public class ProdutoServiceImp implements ProdutoService {
     @Override
     public ProdutoResponseDTO editarProduto(Long idProduto, CadastrarProdutoDTO cadastrarProdutoDTO, List<MultipartFile> imagens) throws IOException {
         Produto produtoAEditar = produtoRepository.findById(idProduto).orElseThrow(() -> new ExcecoesCustomizada("Produto não encontrado!", HttpStatus.NOT_FOUND));
-        produtoAEditar = produtoMapper.toEntity(cadastrarProdutoDTO);
+        produtoMapper.editarProduto(produtoAEditar, cadastrarProdutoDTO);
 
         if (imagens != null && !imagens.isEmpty()) {
-            produtoAEditar.setImagens(imagemMapper.toEntity(cadastrarProdutoDTO.mapeamentoImagens(), imagens, produtoAEditar));
+            imagemMapper.adicionarNovasImagens(cadastrarProdutoDTO.mapeamentoImagens(), imagens, produtoAEditar);
         }
 
         if (cadastrarProdutoDTO.imagensParaDeletar() != null && !cadastrarProdutoDTO.imagensParaDeletar().isEmpty()) {
@@ -69,8 +70,7 @@ public class ProdutoServiceImp implements ProdutoService {
             }
         }
 
-        produtoRepository.save(produtoAEditar);
-        return produtoMapper.toResponseDTO(produtoAEditar);
+        return produtoMapper.toResponseDTO(produtoRepository.save(produtoAEditar));
     }
 
     @Override

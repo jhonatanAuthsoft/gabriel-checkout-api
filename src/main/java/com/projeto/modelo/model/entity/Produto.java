@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -29,13 +30,13 @@ public class Produto {
     private Checkout checkout;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Plano> planos;
+    private List<Plano> planos = new ArrayList<>();
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Cupom> cupom;
+    private List<Cupom> cupom = new ArrayList<>();
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Imagem> imagens;
+    private List<Imagem> imagens = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "data_criacao", updatable = false)

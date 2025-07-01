@@ -5,6 +5,7 @@ import com.projeto.modelo.model.entity.produto.Exibicoes;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,7 +25,7 @@ public class Checkout {
     Exibicoes exibicoes;
 
     @OneToMany(mappedBy = "checkout", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Pergunta> perguntas;
+    List<Pergunta> perguntas = new ArrayList<>();
 
     @JoinColumn(name = "produto_id")
     @JsonIgnore

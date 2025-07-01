@@ -29,6 +29,16 @@ public class ImagemMapper {
                 .orElse(null);
     }
 
+    public void adicionarNovasImagens(List<MapeamentoImagem> mapeamentoImagens, List<MultipartFile> novasImagens, Produto produto) throws IOException {
+        if (novasImagens == null || novasImagens.isEmpty()) return;
+
+        List<Imagem> imagens = this.toEntity(mapeamentoImagens, novasImagens, produto);
+
+        // Adiciona as novas imagens à lista existente
+        produto.getImagens().addAll(imagens);
+    }
+
+
     public List<Imagem> toEntity(List<MapeamentoImagem> mapeamentoImagens, List<MultipartFile> imagens, Produto produto) throws IOException {
         List<Imagem> imagensSalvas = new ArrayList<>();
 

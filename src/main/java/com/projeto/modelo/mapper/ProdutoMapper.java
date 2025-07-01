@@ -35,7 +35,7 @@ public class ProdutoMapper {
 
         List<Imagem> imagens = new ArrayList<>();
 
-        if (produto.getImagens() == null && !produto.getImagens().isEmpty()) {
+        if (produto.getImagens() != null && !produto.getImagens().isEmpty()) {
             imagens = produto.getImagens().stream()
                     .peek(imagem -> imagem.setSignedUrl(awsS3Service.generateSignedDownloadUrl(imagem.getId())))
                     .toList();
@@ -129,5 +129,51 @@ public class ProdutoMapper {
         produto.setCupom(cupomMapper.toEntity(dto.dados().getCupom(), produto));
 
         return produto;
+    }
+
+    public void editarProduto(Produto produto, CadastrarProdutoDTO dto) {
+        produto.setStatus(ProdutoStatus.ATIVO);
+
+        DadosProduto dadosProduto = DadosProduto.builder()
+                .dadosGerais(DadosGerais.builder()
+                        .codigo(dto.dados().getDadosProduto().dadosGerais().codigo())
+                        .chave(dto.dados().getDadosProduto().dadosGerais().chave())
+                        .nome(dto.dados().getDadosProduto().dadosGerais().nome())
+                        .codigoSku(dto.dados().getDadosProduto().dadosGerais().codigoSku())
+                        .descricao(dto.dados().getDadosProduto().dadosGerais().descricao())
+                        .build())
+                .cobranca(Cobranca.builder()
+                        .tipoCobranca(dto.dados().getDadosProduto().cobranca().tipoCobranca())
+                        .peridiocidade(dto.dados().getDadosProduto().cobranca().peridiocidade())
+                        .preco(dto.dados().getDadosProduto().cobranca().preco())
+                        .gratis(dto.dados().getDadosProduto().cobranca().gratis())
+                        .tipoPrimeiraParcela(dto.dados().getDadosProduto().cobranca().tipoPrimeiraParcela())
+                        .valorPrimeiraParcela(dto.dados().getDadosProduto().cobranca().valorPrimeiraParcela())
+                        .carencia(dto.dados().getDadosProduto().cobranca().carencia())
+                        .build())
+                .disponibilidade(Disponibilidade.builder()
+                        .disponivel(dto.dados().getDadosProduto().disponibilidade().disponivel())
+                        .quantidadeMaxima(dto.dados().getDadosProduto().disponibilidade().quantidadeMaxima())
+                        .build())
+                .formatoCategoria(FormatoCategoria.builder()
+                        .formato(dto.dados().getDadosProduto().formatoCategoria().formato())
+                        .categoria(dto.dados().getDadosProduto().formatoCategoria().categoria())
+                        .build())
+                .suporteGarantia(SuporteGarantia.builder()
+                        .email(dto.dados().getDadosProduto().suporteGarantia().email())
+                        .telefoneSuporte(dto.dados().getDadosProduto().suporteGarantia().telefoneSuporte())
+                        .mostrarTelefoneSuporte(dto.dados().getDadosProduto().suporteGarantia().mostrarTelefoneSuporte())
+                        .whatsappSuporte(dto.dados().getDadosProduto().suporteGarantia().whatsappSuporte())
+                        .mostrarWhatsappSuporte(dto.dados().getDadosProduto().suporteGarantia().mostrarWhatsappSuporte())
+                        .build())
+                .urlPersonalizada(dto.dados().getDadosProduto().urlPersonalizada())
+                .build();
+
+        produto.setDadosProduto(dadosProduto);
+
+        checkoutMapper.editarCheckout(produto.getCheckout(), dto.dados().getCheckout().getPerguntas());
+        planoMapper.editarPlano(dto.dados().getPlanos(), produto);
+        cupomMapper.editarCupom(dto.dados().getCupom(), produto);
+
     }
 }

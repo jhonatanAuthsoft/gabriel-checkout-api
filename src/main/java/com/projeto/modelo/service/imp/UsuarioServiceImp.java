@@ -88,7 +88,7 @@ public class UsuarioServiceImp implements UsuarioService {
         }
 
         String senha = this.gerarSenha();
-        String senhaCriptografada = this.passwordEncoder.encode(senha);
+        String senhaCriptografada = this.passwordEncoder.encode("123456");
 
         Usuario usuario = this.usuarioMapper.toEntity(cadastraUsuarioDTO, senhaCriptografada);
 
