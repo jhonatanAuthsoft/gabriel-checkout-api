@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 public interface EmailService {
 
 
-     @Async
-     void cadastraUsuario(String toEmail, String senha);
+    @Async
+    void cadastraUsuario(String toEmail, String senha);
 
-     void enviarEmailEsqueceuSenha(String toEmail);
+    void enviarEmailEsqueceuSenha(String toEmail);
 }

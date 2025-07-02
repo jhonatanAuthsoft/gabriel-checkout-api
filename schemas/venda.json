@@ -1,0 +1,10 @@
+{
+  "metodoPagamento": "CREDITO", // ou PIX, BOLETO
+  "dadosCartao": {
+    "numero": "",
+    "nomeImpresso": "",
+    "validade": "MM/AA",
+    "cvv": ""
+  },
+  "email": "" // Será usado para recuperar informações do usuário, tais como e-mail, cpf, e etc.
+}

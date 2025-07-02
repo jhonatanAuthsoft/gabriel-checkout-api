@@ -1,13 +1,12 @@
 package com.projeto.modelo.service.imp;
 
 
-
 import com.projeto.modelo.configuracao.exeption.ExcecoesCustomizada;
 import com.projeto.modelo.controller.dto.request.CadastraUsuarioDTO;
 import com.projeto.modelo.controller.dto.request.UsuarioEsqueceuSenhaRequestDTO;
 import com.projeto.modelo.controller.dto.request.ValidaTrocaSenhaRequestDTO;
 import com.projeto.modelo.controller.dto.response.AuthenticatedResposeDTO;
-import com.projeto.modelo.controller.dto.response.UsuarioResposeDTO;
+import com.projeto.modelo.controller.dto.response.UsuarioResponseDTO;
 import com.projeto.modelo.mapper.UsuarioMapper;
 import com.projeto.modelo.model.entity.Usuario;
 import com.projeto.modelo.model.enums.PermissaoStatus;
@@ -15,15 +14,16 @@ import com.projeto.modelo.model.enums.UsuarioStatus;
 import com.projeto.modelo.repository.EmailService;
 import com.projeto.modelo.repository.UsuarioRepository;
 import com.projeto.modelo.service.UsuarioService;
-import java.security.SecureRandom;
-import java.util.Optional;
-import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.security.SecureRandom;
+import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class UsuarioServiceImp implements UsuarioService {
@@ -39,14 +39,13 @@ public class UsuarioServiceImp implements UsuarioService {
     private EmailService emailService;
 
 
-
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
     @Transactional(readOnly = true)
     @Override
-    public AuthenticatedResposeDTO retornoAutenticacao(String email, String jwt){
-        UsuarioResposeDTO responseDTO = this.usuarioMapper.toResponseDTO(this.buscarPorEmail(email));
+    public AuthenticatedResposeDTO retornoAutenticacao(String email, String jwt) {
+        UsuarioResponseDTO responseDTO = this.usuarioMapper.toResponseDTO(this.buscarPorEmail(email));
 
         return AuthenticatedResposeDTO.builder()
                 .usuarioRespose(responseDTO)
@@ -61,12 +60,12 @@ public class UsuarioServiceImp implements UsuarioService {
     }
 
     @Override
-    public void validaTrocaSenha(ValidaTrocaSenhaRequestDTO validaTrocaSenhaRequestDTO){
+    public void validaTrocaSenha(ValidaTrocaSenhaRequestDTO validaTrocaSenhaRequestDTO) {
         Optional<Usuario> usuarioOptional = this.usuarioRepository
                 .findByEmailAndCodigoTrocaSenha(validaTrocaSenhaRequestDTO.email(), validaTrocaSenhaRequestDTO.codigo());
 
-        if(!usuarioOptional.isPresent()){
-            throw new ExcecoesCustomizada("Codigo invalido",HttpStatus.BAD_REQUEST);
+        if (!usuarioOptional.isPresent()) {
+            throw new ExcecoesCustomizada("Codigo invalido", HttpStatus.BAD_REQUEST);
         }
         Usuario usuario = usuarioOptional.get();
         usuario.setSenha(this.passwordEncoder.encode(validaTrocaSenhaRequestDTO.senhaNova()));
@@ -75,20 +74,27 @@ public class UsuarioServiceImp implements UsuarioService {
     }
 
     @Override
-    public UsuarioResposeDTO cadastraUsuario(CadastraUsuarioDTO cadastraUsuarioDTO){
+    public UsuarioResponseDTO cadastraUsuario(CadastraUsuarioDTO cadastraUsuarioDTO) {
+        Optional<Usuario> optionalUsuario = this.usuarioRepository.findByEmail(cadastraUsuarioDTO.email());
 
-        Usuario usuario = new Usuario();
+        if (optionalUsuario.isPresent()) {
+            Usuario usuarioExiste = optionalUsuario.get();
+
+            if (usuarioExiste.getPermissao() == PermissaoStatus.CLIENTE) {
+                return this.usuarioMapper.toResponseDTO(usuarioExiste);
+            } else {
+                throw new ExcecoesCustomizada("E-mail já está cadastrado.", HttpStatus.BAD_REQUEST);
+            }
+        }
+
         String senha = this.gerarSenha();
-        String senhaCriptografada = this.passwordEncoder.encode(senha);
+        String senhaCriptografada = this.passwordEncoder.encode("123456");
 
-        usuario.setEmail(cadastraUsuarioDTO.email());
-        usuario.setStatus(UsuarioStatus.ATIVO);
-        usuario.setSenha(senhaCriptografada);
-        usuario.setPermissao(PermissaoStatus.ADMIN);
+        Usuario usuario = this.usuarioMapper.toEntity(cadastraUsuarioDTO, senhaCriptografada);
+
         Usuario usuarioSalvo = this.usuarioRepository.save(usuario);
         this.emailService.cadastraUsuario(cadastraUsuarioDTO.email(), senha);
-        UsuarioResposeDTO responseDTO = this.usuarioMapper.toResponseDTO(usuarioSalvo);
-        return responseDTO;
+        return this.usuarioMapper.toResponseDTO(usuarioSalvo);
     }
 
     public String gerarSenha() {
