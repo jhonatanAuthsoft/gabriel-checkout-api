@@ -46,7 +46,7 @@ public class ProdutoServiceImp implements ProdutoService {
         Produto produtoCriado = produtoMapper.toEntity(cadastrarProdutoDTO);
         produtoRepository.save(produtoCriado);
 
-        if (!imagens.isEmpty()) {
+        if (imagens != null && !imagens.isEmpty()) {
             produtoCriado.setImagens(imagemMapper.toEntity(cadastrarProdutoDTO.mapeamentoImagens(), imagens, produtoCriado));
         }
 
