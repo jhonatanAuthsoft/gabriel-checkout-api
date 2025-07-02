@@ -46,7 +46,7 @@ public class ProdutoMapper {
                         .id(produto.getId())
                         .status(produto.getStatus())
                         .dadosProduto(produto.getDadosProduto())
-                        .checkout(produto.getCheckout())
+                        .checkoutProduto(produto.getCheckoutProduto())
                         .planos(produto.getPlanos())
                         .cupom(produto.getCupom())
                         .imagens(imagens)
@@ -124,7 +124,7 @@ public class ProdutoMapper {
                         .build())
                 .build();
 
-        produto.setCheckout(checkoutMapper.toEntity(dto.dados().getCheckout(), produto));
+        produto.setCheckoutProduto(checkoutMapper.toEntity(dto.dados().getCheckoutProduto(), produto));
         produto.setPlanos(planoMapper.toEntity(dto.dados().getPlanos(), produto));
         produto.setCupom(cupomMapper.toEntity(dto.dados().getCupom(), produto));
 
@@ -171,7 +171,7 @@ public class ProdutoMapper {
 
         produto.setDadosProduto(dadosProduto);
 
-        checkoutMapper.editarCheckout(produto.getCheckout(), dto.dados().getCheckout().getPerguntas());
+        checkoutMapper.editarCheckout(produto.getCheckoutProduto(), dto.dados().getCheckoutProduto().getPerguntas());
         planoMapper.editarPlano(dto.dados().getPlanos(), produto);
         cupomMapper.editarCupom(dto.dados().getCupom(), produto);
 

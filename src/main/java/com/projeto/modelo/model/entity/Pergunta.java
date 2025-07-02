@@ -21,5 +21,5 @@ public class Pergunta {
     @JoinColumn(name = "checkout_id")
     @JsonIgnore
     @ManyToOne
-    private Checkout checkout;
+    private CheckoutProduto checkoutProduto;
 }

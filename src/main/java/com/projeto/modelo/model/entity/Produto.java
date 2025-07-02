@@ -27,7 +27,7 @@ public class Produto {
     private DadosProduto dadosProduto;
 
     @OneToOne(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Checkout checkout;
+    private CheckoutProduto checkoutProduto;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Plano> planos = new ArrayList<>();
