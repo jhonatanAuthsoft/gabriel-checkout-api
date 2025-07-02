@@ -1,6 +1,6 @@
 package com.projeto.modelo.mapper;
 
-import com.projeto.modelo.model.entity.Checkout;
+import com.projeto.modelo.model.entity.CheckoutProduto;
 import com.projeto.modelo.model.entity.Pergunta;
 import org.springframework.stereotype.Component;
 
@@ -9,22 +9,22 @@ import java.util.stream.Collectors;
 
 @Component
 public class PerguntaMapper {
-    public List<Pergunta> toEntity(List<Pergunta> perguntas, Checkout checkout) {
+    public List<Pergunta> toEntity(List<Pergunta> perguntas, CheckoutProduto checkoutProduto) {
         List<Pergunta> perguntasMapeadas = new ArrayList<>();
 
         for (Pergunta pergunta : perguntas) {
             perguntasMapeadas.add(Pergunta.builder()
                     .pergunta(pergunta.getPergunta())
                     .resposta(pergunta.getResposta())
-                    .checkout(checkout)
+                    .checkoutProduto(checkoutProduto)
                     .build());
         }
 
         return perguntasMapeadas;
     }
 
-    public void editarPerguntas(List<Pergunta> novasPerguntas, Checkout checkout) {
-        List<Pergunta> existentes = checkout.getPerguntas();
+    public void editarPerguntas(List<Pergunta> novasPerguntas, CheckoutProduto checkoutProduto) {
+        List<Pergunta> existentes = checkoutProduto.getPerguntas();
 
         Map<Long, Pergunta> existentesPorId = existentes.stream()
                 .filter(p -> p.getId() != null)
@@ -44,7 +44,7 @@ public class PerguntaMapper {
                 Pergunta nova = Pergunta.builder()
                         .pergunta(dto.getPergunta())
                         .resposta(dto.getResposta())
-                        .checkout(checkout)
+                        .checkoutProduto(checkoutProduto)
                         .build();
 
                 existentes.add(nova);
