@@ -35,7 +35,7 @@ public class AwsS3Service {
     private final S3Presigner s3Presigner;
     private final ImagemRepository imagemRepository;
 
-    @Value("${api.aws.s3.bucket.name}")
+    @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
     public Imagem uploadFile(MultipartFile file, String path, Imagem imagem) throws IOException {
