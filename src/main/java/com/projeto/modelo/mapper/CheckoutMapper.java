@@ -1,6 +1,6 @@
 package com.projeto.modelo.mapper;
 
-import com.projeto.modelo.model.entity.Checkout;
+import com.projeto.modelo.model.entity.CheckoutProduto;
 import com.projeto.modelo.model.entity.Pergunta;
 import com.projeto.modelo.model.entity.Produto;
 import lombok.extern.slf4j.Slf4j;
@@ -17,14 +17,14 @@ public class CheckoutMapper {
     @Autowired
     private PerguntaMapper perguntaMapper;
 
-    public Checkout toEntity(Checkout checkout, Produto produto) {
-        checkout.setProduto(produto);
-        checkout.setPerguntas(perguntaMapper.toEntity(checkout.getPerguntas(), checkout));
+    public CheckoutProduto toEntity(CheckoutProduto checkoutProduto, Produto produto) {
+        checkoutProduto.setProduto(produto);
+        checkoutProduto.setPerguntas(perguntaMapper.toEntity(checkoutProduto.getPerguntas(), checkoutProduto));
 
-        return checkout;
+        return checkoutProduto;
     }
 
-    public void editarCheckout(Checkout checkout, List<Pergunta> perguntas) {
-        perguntaMapper.editarPerguntas(perguntas, checkout);
+    public void editarCheckout(CheckoutProduto checkoutProduto, List<Pergunta> perguntas) {
+        perguntaMapper.editarPerguntas(perguntas, checkoutProduto);
     }
 } 

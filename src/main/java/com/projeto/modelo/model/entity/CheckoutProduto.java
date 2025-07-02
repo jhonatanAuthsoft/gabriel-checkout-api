@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Table(name = "checkouts")
-public class Checkout {
+public class CheckoutProduto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,7 +24,7 @@ public class Checkout {
     @Embedded
     Exibicoes exibicoes;
 
-    @OneToMany(mappedBy = "checkout", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "checkoutProduto", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Pergunta> perguntas = new ArrayList<>();
 
     @JoinColumn(name = "produto_id")
