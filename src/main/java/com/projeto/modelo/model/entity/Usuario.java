@@ -53,6 +53,9 @@ public class Usuario implements UserDetails, Serializable {
     @Column(name = "celular")
     private String celular;
 
+    @Embedded
+    private Endereco endereco;
+
     @CreationTimestamp
     @JsonIgnore
     @Column(name = "data_criacao", updatable = false, nullable = false)
