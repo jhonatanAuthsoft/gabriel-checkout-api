@@ -44,7 +44,6 @@ public class ProdutoMapper {
         return ProdutoResponseDTO.builder()
                 .dados(Produto.builder()
                         .id(produto.getId())
-                        .status(produto.getStatus())
                         .dadosProduto(produto.getDadosProduto())
                         .checkoutProduto(produto.getCheckoutProduto())
                         .planos(produto.getPlanos())
@@ -52,20 +51,9 @@ public class ProdutoMapper {
                         .imagens(imagens)
                         .dataCriacao(produto.getDataCriacao())
                         .dataAtualizacao(produto.getDataAtualizacao())
+                        .status(produto.getStatus())
                         .build())
                 .build();
-    }
-
-    private ProdutoStatus definirStatusProduto(Disponibilidade disponibilidade, Long vendasTotais) {
-        if (!disponibilidade.disponivel()) {
-            return ProdutoStatus.INATIVO;
-        }
-
-        if (vendasTotais >= disponibilidade.quantidadeMaxima()) {
-            return ProdutoStatus.ESGOTADO;
-        }
-
-        return ProdutoStatus.ATIVO;
     }
 
     public Page<ProdutoResponseListDTO> toResponseListDTO(Page<Produto> produtos) {
@@ -79,8 +67,8 @@ public class ProdutoMapper {
                 .codigo(produto.getDadosProduto().dadosGerais().codigo())
                 .valor(produto.getDadosProduto().cobranca().preco())
                 //.afiliados(produto.getAfiliados()) Isso aqui será a quantidade de funcionários? eu devo associar ou não de onde vem?
-                //.vendasTotais(produto.getVendasTotais()) Fazer um getAllByProduto, na entidade de vendas
-                .status(definirStatusProduto(produto.getDadosProduto().disponibilidade(), vendasTotais))
+                .vendasTotais(vendasTotais) // Fazer um getAllByProduto, na entidade de vendas
+                .status(produto.getStatus())
                 .build()
         );
     }

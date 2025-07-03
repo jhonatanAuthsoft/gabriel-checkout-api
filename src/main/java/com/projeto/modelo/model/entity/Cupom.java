@@ -1,6 +1,7 @@
 package com.projeto.modelo.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.projeto.modelo.model.enums.ProdutoStatus;
 import com.projeto.modelo.model.enums.TipoDesconto;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,4 +30,6 @@ public class Cupom {
     @JsonIgnore
     @ManyToOne
     private Produto produto;
+    @Enumerated(EnumType.STRING)
+    private ProdutoStatus status;
 }
