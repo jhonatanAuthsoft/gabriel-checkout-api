@@ -9,6 +9,7 @@ import com.projeto.modelo.model.entity.Usuario;
 import com.projeto.modelo.model.enums.PermissaoStatus;
 import com.projeto.modelo.model.enums.UsuarioStatus;
 import com.projeto.modelo.util.StringUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -73,7 +74,17 @@ public class UsuarioMapper {
                StringUtils.isNullOrEmpty(endereco.cep());
     }
 
-    public void editarUsuario(Usuario usuario, CadastraUsuarioDTO dto) {
+    public Page<UsuarioResponseDTO> UsuarioToResponseList(Page<Usuario> usuarios) {
+        return usuarios.map(this::toResponseDTO);
+    }
 
+    public void editarUsuario(Usuario usuario, CadastraUsuarioDTO dto) {
+        PermissaoStatus permissao = usuario.getPermissao().equals(PermissaoStatus.ADMIN) ? dto.permissao() : usuario.getPermissao();
+
+        usuario.setNome(dto.nome());
+        usuario.setEmail(dto.email());
+        usuario.setCpf(dto.cpf());
+        usuario.setEndereco(dto.endereco());
+        usuario.setPermissao(permissao);
     }
 }

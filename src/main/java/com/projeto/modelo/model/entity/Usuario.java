@@ -25,7 +25,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "usuario")
+@Table(name = "usuarios")
 public class Usuario implements UserDetails, Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -72,6 +72,9 @@ public class Usuario implements UserDetails, Serializable {
     @Column(name = "permissao")
     @Enumerated(EnumType.STRING)
     private PermissaoStatus permissao;
+
+    @Column(name = "data_delecao")
+    private LocalDateTime dataDelecao;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

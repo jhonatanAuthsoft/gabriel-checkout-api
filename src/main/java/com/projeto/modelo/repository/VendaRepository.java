@@ -12,12 +12,12 @@ import java.util.Optional;
 
 @Repository
 public interface VendaRepository extends JpaRepository<Venda, Long> {
-    @Query(value = "SELECT * FROM venda WHERE id_vendedor = :idVendedor",
+    @Query(value = "SELECT * FROM vendas WHERE id_vendedor = :idVendedor",
             countQuery = "SELECT count(*) FROM venda WHERE id_vendedor = :idVendedor",
             nativeQuery = true)
     Page<Venda> listarTodosPorVendedor(Pageable pageable, @Param("idVendedor") Long idVendedor);
 
-    @Query(value = "SELECT * FROM venda WHERE id_cliente = :idCliente",
+    @Query(value = "SELECT * FROM vendas WHERE id_cliente = :idCliente",
             countQuery = "SELECT count(*) FROM venda WHERE id_cliente = :idCliente",
             nativeQuery = true)
     Page<Venda> listarTodosPorClient(Pageable pageable, @Param("idCliente") Long idCliente);
