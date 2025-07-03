@@ -18,7 +18,7 @@ public record CadastraUsuarioDTO(String email, String nome, @CPF String cpf, Str
             throw new ExcecoesCustomizada("nome não pode ficar em branco", HttpStatus.BAD_REQUEST);
         }
 
-        if (StringUtils.isNullOrEmpty(permissao.toString())) {
+        if (permissao != null && StringUtils.isNullOrEmpty(permissao.toString())) {
             if (endereco == null) {
                 throw new ExcecoesCustomizada("O endereço não pode ficar em branco", HttpStatus.BAD_REQUEST);
             }

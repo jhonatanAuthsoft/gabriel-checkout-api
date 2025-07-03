@@ -18,7 +18,7 @@ public interface UsuarioService {
 
     void validaTrocaSenha(ValidaTrocaSenhaRequestDTO validaTrocaSenhaRequestDTO);
 
-    UsuarioResponseDTO cadastraUsuario(CadastraUsuarioDTO cadastraUsuarioDTO);
+    UsuarioResponseDTO cadastraUsuario(String token, CadastraUsuarioDTO cadastraUsuarioDTO);
 
     void esqueceuSenha(UsuarioEsqueceuSenhaRequestDTO usuarioEsqueceuSenhaRequestDTO);
 }

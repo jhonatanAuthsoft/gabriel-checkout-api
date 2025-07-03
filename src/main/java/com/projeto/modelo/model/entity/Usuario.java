@@ -47,7 +47,7 @@ public class Usuario implements UserDetails, Serializable {
     private UsuarioStatus status;
 
     @CPF(message = "O CPF deve ser Válido!")
-    @Column(name = "cpf")
+    @Column(name = "cpf", unique = true)
     private String cpf;
 
     @Column(name = "celular")

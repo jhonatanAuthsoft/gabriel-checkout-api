@@ -10,10 +10,7 @@ import com.projeto.modelo.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/usuario")
@@ -29,10 +26,10 @@ public class UsuarioController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-  //  @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/cadastrar")
-    public ResponseEntity<UsuarioResponseDTO> cadastrar(@RequestBody CadastraUsuarioDTO cadastraUsuarioDTO) {
-        UsuarioResponseDTO usuarioResponseDTO = this.usuarioService.cadastraUsuario(cadastraUsuarioDTO);
+    public ResponseEntity<UsuarioResponseDTO> cadastrar(@RequestHeader(value = "Authorization", required = false) String token,
+                                                        @RequestBody CadastraUsuarioDTO cadastraUsuarioDTO) {
+        UsuarioResponseDTO usuarioResponseDTO = this.usuarioService.cadastraUsuario(token, cadastraUsuarioDTO);
         return new ResponseEntity<>(usuarioResponseDTO, HttpStatus.OK);
     }
 

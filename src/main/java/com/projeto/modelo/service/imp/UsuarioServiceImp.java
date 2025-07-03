@@ -1,6 +1,7 @@
 package com.projeto.modelo.service.imp;
 
 
+import com.projeto.modelo.configuracao.JwtUtil;
 import com.projeto.modelo.configuracao.exeption.ExcecoesCustomizada;
 import com.projeto.modelo.controller.dto.request.CadastraUsuarioDTO;
 import com.projeto.modelo.controller.dto.request.UsuarioEsqueceuSenhaRequestDTO;
@@ -14,6 +15,7 @@ import com.projeto.modelo.model.enums.UsuarioStatus;
 import com.projeto.modelo.repository.EmailService;
 import com.projeto.modelo.repository.UsuarioRepository;
 import com.projeto.modelo.service.UsuarioService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,6 +27,7 @@ import java.security.SecureRandom;
 import java.util.Optional;
 import java.util.Random;
 
+@Slf4j
 @Service
 public class UsuarioServiceImp implements UsuarioService {
 
@@ -37,6 +40,9 @@ public class UsuarioServiceImp implements UsuarioService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -74,8 +80,12 @@ public class UsuarioServiceImp implements UsuarioService {
     }
 
     @Override
-    public UsuarioResponseDTO cadastraUsuario(CadastraUsuarioDTO cadastraUsuarioDTO) {
+    public UsuarioResponseDTO cadastraUsuario(String token, CadastraUsuarioDTO cadastraUsuarioDTO) {
         Optional<Usuario> optionalUsuario = this.usuarioRepository.findByEmail(cadastraUsuarioDTO.email());
+        Usuario usuarioRequisitor = null;
+        if (token != null) {
+            usuarioRequisitor = this.usuarioRepository.findByEmail(jwtUtil.extractUsername(token)).orElse(null);
+        }
 
         if (optionalUsuario.isPresent()) {
             Usuario usuarioExiste = optionalUsuario.get();
@@ -90,7 +100,7 @@ public class UsuarioServiceImp implements UsuarioService {
         String senha = this.gerarSenha();
         String senhaCriptografada = this.passwordEncoder.encode("123456");
 
-        Usuario usuario = this.usuarioMapper.toEntity(cadastraUsuarioDTO, senhaCriptografada);
+        Usuario usuario = this.usuarioMapper.toEntity(cadastraUsuarioDTO, senhaCriptografada, usuarioRequisitor); //passar aqui o token, caso não venha token, cadastra como cliente independente do que ta vindo no dto
 
         Usuario usuarioSalvo = this.usuarioRepository.save(usuario);
         this.emailService.cadastraUsuario(cadastraUsuarioDTO.email(), senha);
