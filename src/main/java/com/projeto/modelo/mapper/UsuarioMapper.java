@@ -4,6 +4,7 @@ package com.projeto.modelo.mapper;
 import com.projeto.modelo.configuracao.exeption.ExcecoesCustomizada;
 import com.projeto.modelo.controller.dto.request.CadastraUsuarioDTO;
 import com.projeto.modelo.controller.dto.response.UsuarioResponseDTO;
+import com.projeto.modelo.model.entity.Endereco;
 import com.projeto.modelo.model.entity.Usuario;
 import com.projeto.modelo.model.enums.PermissaoStatus;
 import com.projeto.modelo.model.enums.UsuarioStatus;
