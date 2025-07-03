@@ -25,7 +25,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "usuario")
+@Table(name = "usuarios")
 public class Usuario implements UserDetails, Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -47,11 +47,14 @@ public class Usuario implements UserDetails, Serializable {
     private UsuarioStatus status;
 
     @CPF(message = "O CPF deve ser Válido!")
-    @Column(name = "cpf")
+    @Column(name = "cpf", unique = true)
     private String cpf;
 
     @Column(name = "celular")
     private String celular;
+
+    @Embedded
+    private Endereco endereco;
 
     @CreationTimestamp
     @JsonIgnore
@@ -69,6 +72,9 @@ public class Usuario implements UserDetails, Serializable {
     @Column(name = "permissao")
     @Enumerated(EnumType.STRING)
     private PermissaoStatus permissao;
+
+    @Column(name = "data_delecao")
+    private LocalDateTime dataDelecao;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -1,6 +1,7 @@
 package com.projeto.modelo.service.imp;
 
 
+import com.projeto.modelo.configuracao.JwtUtil;
 import com.projeto.modelo.configuracao.exeption.ExcecoesCustomizada;
 import com.projeto.modelo.controller.dto.request.CadastraUsuarioDTO;
 import com.projeto.modelo.controller.dto.request.UsuarioEsqueceuSenhaRequestDTO;
@@ -14,7 +15,10 @@ import com.projeto.modelo.model.enums.UsuarioStatus;
 import com.projeto.modelo.repository.EmailService;
 import com.projeto.modelo.repository.UsuarioRepository;
 import com.projeto.modelo.service.UsuarioService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,9 +26,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
+@Slf4j
 @Service
 public class UsuarioServiceImp implements UsuarioService {
 
@@ -37,6 +43,9 @@ public class UsuarioServiceImp implements UsuarioService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -74,27 +83,74 @@ public class UsuarioServiceImp implements UsuarioService {
     }
 
     @Override
-    public UsuarioResponseDTO cadastraUsuario(CadastraUsuarioDTO cadastraUsuarioDTO) {
+    public UsuarioResponseDTO cadastraUsuario(String token, CadastraUsuarioDTO cadastraUsuarioDTO) {
         Optional<Usuario> optionalUsuario = this.usuarioRepository.findByEmail(cadastraUsuarioDTO.email());
+        Usuario usuarioRequisitor = null;
+        if (token != null) {
+            usuarioRequisitor = this.usuarioRepository.findByEmail(jwtUtil.extractUsername(token.substring(7))).orElse(null);
+        }
 
         if (optionalUsuario.isPresent()) {
             Usuario usuarioExiste = optionalUsuario.get();
 
-            if (usuarioExiste.getPermissao() == PermissaoStatus.CLIENTE) {
-                return this.usuarioMapper.toResponseDTO(usuarioExiste);
-            } else {
-                throw new ExcecoesCustomizada("E-mail já está cadastrado.", HttpStatus.BAD_REQUEST);
-            }
+            usuarioExiste.setDataDelecao(null);
+            usuarioExiste.setStatus(UsuarioStatus.ATIVO);
+            this.usuarioRepository.save(usuarioExiste);
+            return this.usuarioMapper.toResponseDTO(usuarioExiste);
         }
 
         String senha = this.gerarSenha();
         String senhaCriptografada = this.passwordEncoder.encode("123456");
 
-        Usuario usuario = this.usuarioMapper.toEntity(cadastraUsuarioDTO, senhaCriptografada);
+        Usuario usuario = this.usuarioMapper.toEntity(cadastraUsuarioDTO, senhaCriptografada, usuarioRequisitor); //passar aqui o token, caso não venha token, cadastra como cliente independente do que ta vindo no dto
 
         Usuario usuarioSalvo = this.usuarioRepository.save(usuario);
         this.emailService.cadastraUsuario(cadastraUsuarioDTO.email(), senha);
         return this.usuarioMapper.toResponseDTO(usuarioSalvo);
+    }
+
+    @Override
+    public UsuarioResponseDTO editarUsuario(String token, CadastraUsuarioDTO dto, Long idUsuario) {
+        Usuario usuarioSolicitante = this.usuarioRepository.findByEmail(jwtUtil.extractUsername(token.substring(7))).orElseThrow(() -> new ExcecoesCustomizada("Usuário não encontrado!", HttpStatus.NOT_FOUND));
+        Usuario usuarioAEditar = this.usuarioRepository.findById(idUsuario).orElseThrow(() -> new ExcecoesCustomizada("Usuário não encontrado!", HttpStatus.NOT_FOUND));
+
+        if (!usuarioSolicitante.getId().equals(idUsuario) && usuarioAEditar.getPermissao().equals(PermissaoStatus.ADMIN)) {
+            throw new ExcecoesCustomizada("Você não pode editar outros administradores", HttpStatus.UNAUTHORIZED);
+        }
+
+        if (usuarioAEditar.getPermissao().equals(PermissaoStatus.CLIENTE)) {
+            if (!usuarioRepository.findByEmailOrCpfAndNotId(dto.email(), dto.cpf(), usuarioAEditar.getId()).isEmpty())
+                throw new ExcecoesCustomizada("CPF ou Email já existem na base de dados!", HttpStatus.BAD_REQUEST);
+        } else {
+            if (!usuarioRepository.findByEmailAndNotId(dto.email(), usuarioAEditar.getId()).isEmpty())
+                throw new ExcecoesCustomizada("Email já existem na base de dados!", HttpStatus.BAD_REQUEST);
+        }
+
+        usuarioMapper.editarUsuario(usuarioAEditar, dto);
+        return usuarioMapper.toResponseDTO(usuarioRepository.save(usuarioAEditar));
+    }
+
+    @Override
+    public void deletarUsuario(String token, Long id) {
+        Usuario usuarioSolicitante = this.usuarioRepository.findByEmail(jwtUtil.extractUsername(token.substring(7))).orElseThrow(() -> new ExcecoesCustomizada("Usuário não encontrado!", HttpStatus.NOT_FOUND));
+        Usuario usuarioASerDeletado = this.usuarioRepository.findById(id).orElseThrow(() -> new ExcecoesCustomizada("Usuário não encontrado!", HttpStatus.NOT_FOUND));
+
+        if (usuarioSolicitante.getId().equals(usuarioASerDeletado.getId()) || usuarioASerDeletado.getPermissao().equals(PermissaoStatus.ADMIN)) {
+            throw new ExcecoesCustomizada("Você não pode deletar a sí mesmo ou outros administradores!", HttpStatus.BAD_REQUEST);
+        }
+
+        usuarioASerDeletado.setStatus(UsuarioStatus.INATIVO);
+        usuarioASerDeletado.setDataDelecao(LocalDateTime.now());
+    }
+
+    @Override
+    public Page<UsuarioResponseDTO> listarUsuarios(int size, int page) {
+        return usuarioMapper.UsuarioToResponseList(usuarioRepository.listarUsuarios(PageRequest.of(page, size)));
+    }
+
+    @Override
+    public Page<UsuarioResponseDTO> listarClientes(int size, int page) {
+        return usuarioMapper.UsuarioToResponseList(usuarioRepository.listarTodosClientes(PageRequest.of(page, size)));
     }
 
     public String gerarSenha() {
