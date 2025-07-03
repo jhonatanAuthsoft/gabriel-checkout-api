@@ -41,7 +41,7 @@ public class UsuarioMapper {
             if (StringUtils.isNullOrEmpty(dto.cpf()) ||
                 StringUtils.isNullOrEmpty(dto.email()) ||
                 StringUtils.isNullOrEmpty(dto.celular()) ||
-                dto.endereco() == null) {
+                this.validarEndereco(dto.endereco())) {
                 throw new ExcecoesCustomizada("Existem dados obrigatórios faltantes!", HttpStatus.BAD_REQUEST);
             }
 
@@ -57,3 +57,22 @@ public class UsuarioMapper {
                     .build();
         }
     }
+
+    private Boolean validarEndereco(Endereco endereco) {
+        if (endereco == null) {
+            return true;
+        }
+
+        return StringUtils.isNullOrEmpty(endereco.endereco()) ||
+               StringUtils.isNullOrEmpty(endereco.numeroResidencia()) ||
+               StringUtils.isNullOrEmpty(endereco.complementoEndereco()) ||
+               StringUtils.isNullOrEmpty(endereco.bairro()) ||
+               StringUtils.isNullOrEmpty(endereco.cidade()) ||
+               endereco.uf() == null ||
+               StringUtils.isNullOrEmpty(endereco.cep());
+    }
+
+    public void editarUsuario(Usuario usuario, CadastraUsuarioDTO dto) {
+
+    }
+}
