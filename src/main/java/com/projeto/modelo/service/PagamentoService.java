@@ -27,6 +27,4 @@ public interface PagamentoService {
 
     void callbackCartao();
 
-
-
 }
