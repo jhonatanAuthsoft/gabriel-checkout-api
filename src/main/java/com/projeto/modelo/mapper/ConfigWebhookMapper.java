@@ -19,11 +19,16 @@ public class ConfigWebhookMapper {
 
     public ConfigWebhook toEntity(ConfigWebhookRequestDTO dto) {
         return ConfigWebhook.builder()
-                .url(dto.url())
+                .url(formatUrl(dto.url()))
                 .build();
     }
 
     public void atualizarWebhook(ConfigWebhookRequestDTO dto, ConfigWebhook configWebhook) {
-        configWebhook.setUrl(dto.url());
+        configWebhook.setUrl(formatUrl(dto.url()));
+    }
+
+    private String formatUrl(String url) {
+        url = url.replaceAll("/+$", "");
+        return url + "/";
     }
 }

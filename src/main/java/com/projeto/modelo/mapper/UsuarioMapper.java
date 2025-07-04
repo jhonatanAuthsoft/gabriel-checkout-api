@@ -25,6 +25,8 @@ public class UsuarioMapper {
                 .cpf(usuario.getCpf())
                 .endereco(usuario.getEndereco())
                 .permissao(usuario.getPermissao().toString())
+                .dataCriacao(usuario.getDataCriacao())
+                .dataAtualizacao(usuario.getDataAtualizacao())
                 .build();
     }
 
