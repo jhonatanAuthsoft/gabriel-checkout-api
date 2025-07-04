@@ -19,7 +19,6 @@ public record CadastraUsuarioDTO(String email, String nome, @CPF String cpf, Str
         }
 
         if (permissao == null) {
-
             if (endereco == null) {
                 throw new ExcecoesCustomizada("O endereço não pode ficar em branco", HttpStatus.BAD_REQUEST);
             }
