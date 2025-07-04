@@ -48,7 +48,6 @@ public class ProdutoController {
         return new ResponseEntity<>(produtoService.listarTodosOsProdutos(nomeBusca, page, size), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/listar-por-id/{produtoId}")
     public ResponseEntity<ProdutoResponseDTO> listarTodosProdutos(
             @PathVariable Long produtoId
