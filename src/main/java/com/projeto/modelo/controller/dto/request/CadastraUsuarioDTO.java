@@ -18,7 +18,7 @@ public record CadastraUsuarioDTO(String email, String nome, @CPF String cpf, Str
             throw new ExcecoesCustomizada("nome não pode ficar em branco", HttpStatus.BAD_REQUEST);
         }
 
-        if (permissao != null && StringUtils.isNullOrEmpty(permissao.toString())) {
+        if (permissao == null) {
             if (endereco == null) {
                 throw new ExcecoesCustomizada("O endereço não pode ficar em branco", HttpStatus.BAD_REQUEST);
             }
@@ -27,8 +27,8 @@ public record CadastraUsuarioDTO(String email, String nome, @CPF String cpf, Str
                 throw new ExcecoesCustomizada("O cpf não pode ficar em branco e deve ser válido", HttpStatus.BAD_REQUEST);
             }
 
-            if (StringUtils.isNullOrEmpty(celular)) {
-                throw new ExcecoesCustomizada("O celular não pode ficar em branco", HttpStatus.BAD_REQUEST);
+            if (StringUtils.isNullOrEmpty(celular) || celular.length() != 11) {
+                throw new ExcecoesCustomizada("O celular não pode ficar em branco e deve ter exatamente 11 caracteres", HttpStatus.BAD_REQUEST);
             }
         }
     }
