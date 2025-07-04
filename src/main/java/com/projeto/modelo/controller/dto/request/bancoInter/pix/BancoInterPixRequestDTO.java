@@ -4,8 +4,11 @@ import com.projeto.modelo.configuracao.exeption.ExcecoesCustomizada;
 import com.projeto.modelo.util.StringUtils;
 import java.math.BigDecimal;
 import java.util.Objects;
+
+import lombok.Builder;
 import org.springframework.http.HttpStatus;
 
+@Builder
 public record BancoInterPixRequestDTO(Integer expiracao, String devedorNome, String devedorCpfCnpj, BigDecimal valorPagamento) {
 
 
