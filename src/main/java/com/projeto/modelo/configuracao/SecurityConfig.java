@@ -39,6 +39,7 @@ public class SecurityConfig {
                                 "/usuario/validar-troca-senha",
                                 "/venda/criar",
                                 "/produto/listar-por-id/**",
+                                "/pagamento/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**"

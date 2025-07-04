@@ -10,13 +10,21 @@ import com.projeto.modelo.controller.dto.request.bancoInter.pix.BancoInterPixReq
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.BancoInterWebhookRequestDTO;
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.calback.BancoInterCallbackPixDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.BancoInterAccessTokenResponseDTO;
+import com.projeto.modelo.controller.dto.response.bancoInter.BancoInterWebhookResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterBoletoPDFResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterBoletoResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterCodigoBoletoResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.pix.BancoInterPixResponseDTO;
-import com.projeto.modelo.controller.dto.response.bancoInter.BancoInterWebhookResponseDTO;
 import com.projeto.modelo.service.BancoInterService;
 import com.projeto.modelo.util.StringUtils;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -30,13 +38,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.time.Instant;
 import java.util.*;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 
 @Service
 @Log4j2
@@ -82,7 +83,7 @@ public class BancoInterServiceImp implements BancoInterService {
 
             // Autentica e obtém o token de acesso se necessário
             if (Objects.isNull(this.bancoInterAccessToken) || Objects.isNull(this.bancoInterAccessToken.getHorarioExpiraToken())
-                    || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
+                || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
                 this.autenticar();
             }
 
@@ -119,7 +120,7 @@ public class BancoInterServiceImp implements BancoInterService {
     public BancoInterPixResponseDTO consultaPix(String txid) {
         try {
             if (Objects.isNull(this.bancoInterAccessToken) || Objects.isNull(this.bancoInterAccessToken.getHorarioExpiraToken())
-                    || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
+                || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
                 this.autenticar();
             }
 
@@ -152,7 +153,7 @@ public class BancoInterServiceImp implements BancoInterService {
 
             // Autentica e obtém o token de acesso se necessário
             if (Objects.isNull(this.bancoInterAccessToken) || Objects.isNull(this.bancoInterAccessToken.getHorarioExpiraToken())
-                    || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
+                || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
                 this.autenticar();
             }
 
@@ -185,7 +186,7 @@ public class BancoInterServiceImp implements BancoInterService {
     public BancoInterWebhookResponseDTO buscaWebhookPix() {
         try {
             if (Objects.isNull(this.bancoInterAccessToken) || Objects.isNull(this.bancoInterAccessToken.getHorarioExpiraToken())
-                    || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
+                || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
                 this.autenticar();
             }
 
@@ -216,7 +217,7 @@ public class BancoInterServiceImp implements BancoInterService {
     public void deletarWebhookPix() {
         try {
             if (Objects.isNull(this.bancoInterAccessToken) || Objects.isNull(this.bancoInterAccessToken.getHorarioExpiraToken())
-                    || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
+                || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
                 this.autenticar();
             }
 
@@ -243,7 +244,7 @@ public class BancoInterServiceImp implements BancoInterService {
         try {
 
         } catch (Exception e) {
-            log.error("Erro Callback PIX: Objeto recebido: {}",bancoInterCallbackPixDTO);
+            log.error("Erro Callback PIX: Objeto recebido: {}", bancoInterCallbackPixDTO);
             throw new ExcecoesCustomizada("Erro Callback PIX", HttpStatus.BAD_REQUEST);
         }
     }
@@ -346,7 +347,7 @@ public class BancoInterServiceImp implements BancoInterService {
         try {
 
             if (Objects.isNull(this.bancoInterAccessToken) || Objects.isNull(this.bancoInterAccessToken.getHorarioExpiraToken())
-                    || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
+                || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
                 this.autenticar();
             }
 
@@ -409,7 +410,7 @@ public class BancoInterServiceImp implements BancoInterService {
 
         // Caso queria colocar mensagem no cortpo do email
         Map<String, String> mensagem = new HashMap<>();
-        mensagem.put("linha1", "Compra de Nº " );
+        mensagem.put("linha1", "Compra de Nº ");
         mensagem.put("linha2", "Caso o boleto não seja pago até a data");
         mensagem.put("linha3", "a compra será cancelada Fique atendo nos vencimentos e descontos");
         mensagem.put("linha4", "Dúvidas, fale conosco.");
@@ -422,7 +423,7 @@ public class BancoInterServiceImp implements BancoInterService {
     public BancoInterBoletoResponseDTO consultaBoleto(String codigoBoleto) {
         try {
             if (Objects.isNull(this.bancoInterAccessToken) || Objects.isNull(this.bancoInterAccessToken.getHorarioExpiraToken())
-                    || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
+                || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
                 this.autenticar();
             }
 
@@ -453,7 +454,7 @@ public class BancoInterServiceImp implements BancoInterService {
     public BancoInterBoletoPDFResponseDTO consultarBoletoPdf(String codigoBoleto) {
         try {
             if (Objects.isNull(this.bancoInterAccessToken) || Objects.isNull(this.bancoInterAccessToken.getHorarioExpiraToken())
-                    || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
+                || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
                 this.autenticar();
             }
 
@@ -487,7 +488,7 @@ public class BancoInterServiceImp implements BancoInterService {
 
             // Autentica e obtém o token de acesso se necessário
             if (Objects.isNull(this.bancoInterAccessToken) || Objects.isNull(this.bancoInterAccessToken.getHorarioExpiraToken())
-                    || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
+                || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
                 this.autenticar();
             }
 
@@ -520,12 +521,12 @@ public class BancoInterServiceImp implements BancoInterService {
     public BancoInterWebhookResponseDTO buscaWebhookBoleto() {
         try {
             if (Objects.isNull(this.bancoInterAccessToken) || Objects.isNull(this.bancoInterAccessToken.getHorarioExpiraToken())
-                    || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
+                || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
                 this.autenticar();
             }
 
             HttpClient client = this.httpComSSLConfigurado();
-            String url = this.urlRaiz + this.WEBHOOK_BOLETO ;
+            String url = this.urlRaiz + this.WEBHOOK_BOLETO;
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -551,7 +552,7 @@ public class BancoInterServiceImp implements BancoInterService {
     public void deletarWebhookBoleto() {
         try {
             if (Objects.isNull(this.bancoInterAccessToken) || Objects.isNull(this.bancoInterAccessToken.getHorarioExpiraToken())
-                    || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
+                || Instant.now().isAfter(this.bancoInterAccessToken.getHorarioExpiraToken())) {
                 this.autenticar();
             }
 
@@ -578,7 +579,7 @@ public class BancoInterServiceImp implements BancoInterService {
         try {
 
         } catch (Exception e) {
-            log.error("Erro Callback BOLETO: Objeto recebido: {}",bancoInterCallbackBoletoDTO);
+            log.error("Erro Callback BOLETO: Objeto recebido: {}", bancoInterCallbackBoletoDTO);
             throw new ExcecoesCustomizada("Erro Callback BOLETO", HttpStatus.BAD_REQUEST);
         }
     }
@@ -596,11 +597,11 @@ public class BancoInterServiceImp implements BancoInterService {
 
             // Corpo da requisição (form-urlencoded)
             String body = "grant_type=" + URLEncoder.encode("client_credentials", StandardCharsets.UTF_8) +
-                    "&scope=" + URLEncoder.encode("cob.write cob.read cobv.write cobv.read lotecobv.write " +
-                    "lotecobv.read pix.write pix.read webhook.write webhook.read payloadlocation.write " +
-                    "payloadlocation.read boleto-cobranca.read boleto-cobranca.write extrato.read pagamento-pix.write " +
-                    "pagamento-pix.read extrato-usend.read pagamento-boleto.read pagamento-boleto.write pagamento-darf.write " +
-                    "pagamento-lote.write pagamento-lote.read webhook-banking.read webhook-banking.write", StandardCharsets.UTF_8);
+                          "&scope=" + URLEncoder.encode("cob.write cob.read cobv.write cobv.read lotecobv.write " +
+                                                        "lotecobv.read pix.write pix.read webhook.write webhook.read payloadlocation.write " +
+                                                        "payloadlocation.read boleto-cobranca.read boleto-cobranca.write extrato.read pagamento-pix.write " +
+                                                        "pagamento-pix.read extrato-usend.read pagamento-boleto.read pagamento-boleto.write pagamento-darf.write " +
+                                                        "pagamento-lote.write pagamento-lote.read webhook-banking.read webhook-banking.write", StandardCharsets.UTF_8);
 
             // Criar requisição
             HttpRequest request = HttpRequest.newBuilder()
@@ -629,53 +630,70 @@ public class BancoInterServiceImp implements BancoInterService {
             }
 
         } catch (Exception e) {
-            throw new ExcecoesCustomizada(e.getMessage(), HttpStatus.BAD_GATEWAY);
+            throw new ExcecoesCustomizada(e.getMessage() + " - AUT-I", HttpStatus.BAD_GATEWAY);
         }
     }
 
     private HttpClient httpComSSLConfigurado() {
-
         try {
             char[] keystorePassword = this.keyboardSenha.toCharArray();
             char[] truststorePassword = this.truststoreSenha.toCharArray();
 
+            // Remove "classpath:" se estiver presente
+            String keystorePath = this.keyboard.replace("classpath:", "");
+            String truststorePath = this.truststore.replace("classpath:", "");
+
             // Carregar o keystore (para autenticação do cliente)
             KeyStore keyStore = KeyStore.getInstance("PKCS12");
-
-            try (InputStream keystoreStream = getClass().getClassLoader().getResourceAsStream(this.CERTIFICADO + "/" + keyboard)) {
+            try (InputStream keystoreStream = getClass().getClassLoader().getResourceAsStream(keystorePath)) {
                 if (keystoreStream == null) {
                     throw new FileNotFoundException("Keystore file not found in resources");
                 }
                 keyStore.load(keystoreStream, keystorePassword);
             }
-            // Inicializar o KeyManagerFactory com o keystore
+
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             keyManagerFactory.init(keyStore, keystorePassword);
 
             // Carregar o truststore (para validação do certificado do servidor)
             KeyStore trustStore = KeyStore.getInstance("JKS");
-
-            try (InputStream truststoreStream = getClass().getClassLoader().getResourceAsStream(this.CERTIFICADO + "/" + truststore)) {
+            try (InputStream truststoreStream = getClass().getClassLoader().getResourceAsStream(truststorePath)) {
                 if (truststoreStream == null) {
                     throw new FileNotFoundException("Truststore file not found in resources");
                 }
                 trustStore.load(truststoreStream, truststorePassword);
             }
-            // Inicializar o TrustManagerFactory com o truststore
+
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(trustStore);
 
-            // Criar o contexto SSL
+            log.info("[DEBUG SSL] Iniciando configuração do SSLContext");
+            log.info("[DEBUG SSL] Keystore path: {}", keystorePath);
+            log.info("[DEBUG SSL] Truststore path: {}", truststorePath);
+            log.info("[DEBUG SSL] Keystore password length: {}", keystorePassword.length);
+            log.info("[DEBUG SSL] Truststore password length: {}", truststorePassword.length);
+            log.info("[DEBUG SSL] Keystore aliases:");
+            Enumeration<String> keystoreAliases = keyStore.aliases();
+            while (keystoreAliases.hasMoreElements()) {
+                log.info("[DEBUG SSL]   - {}", keystoreAliases.nextElement());
+            }
+            log.info("[DEBUG SSL] Truststore aliases:");
+            Enumeration<String> truststoreAliases = trustStore.aliases();
+            while (truststoreAliases.hasMoreElements()) {
+                log.info("[DEBUG SSL]   - {}", truststoreAliases.nextElement());
+            }
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
-            // Criar o cliente HTTP com o contexto SSL configurado
+            log.info("[DEBUG SSL] SSLContext inicializado com sucesso");
+
             return HttpClient.newBuilder()
                     .sslContext(sslContext)
                     .build();
 
         } catch (Exception e) {
-            throw new ExcecoesCustomizada("httpComSSLConfigurado - Erro no banco, favor tentar mais tarde", HttpStatus.BAD_GATEWAY);
+            throw new ExcecoesCustomizada("httpComSSLConfigurado - Erro no banco, favor tentar mais tarde: " + e.getMessage(), HttpStatus.BAD_GATEWAY);
         }
     }
+
 
 }

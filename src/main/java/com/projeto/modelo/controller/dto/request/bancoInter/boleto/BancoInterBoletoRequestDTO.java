@@ -5,8 +5,11 @@ import com.projeto.modelo.util.StringUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
+
+import lombok.Builder;
 import org.springframework.http.HttpStatus;
 
+@Builder
 public record BancoInterBoletoRequestDTO(BigDecimal valorPagamento, LocalDate dataVencimento, BancoInterPagadorBoletoRequestDTO pagador) {
 
 
