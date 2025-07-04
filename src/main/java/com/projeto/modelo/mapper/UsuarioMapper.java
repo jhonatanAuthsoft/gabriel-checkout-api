@@ -20,6 +20,7 @@ public class UsuarioMapper {
         return UsuarioResponseDTO.builder()
                 .id(usuario.getId())
                 .email(usuario.getEmail())
+                .celular(usuario.getCelular())
                 .nome(usuario.getNome())
                 .cpf(usuario.getCpf())
                 .endereco(usuario.getEndereco())
