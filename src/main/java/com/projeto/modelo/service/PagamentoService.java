@@ -6,7 +6,6 @@ import com.projeto.modelo.controller.dto.request.bancoInter.pix.calback.BancoInt
 import com.projeto.modelo.controller.dto.response.bancoInter.BancoInterWebhookResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterBoletoPDFResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.pix.BancoInterPixResponseDTO;
-import com.projeto.modelo.controller.dto.response.cielo.CieloResponse;
 import com.projeto.modelo.model.enums.MetodoPagamento;
 
 import java.util.List;
