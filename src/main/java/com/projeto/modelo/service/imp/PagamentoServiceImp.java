@@ -1,6 +1,7 @@
 package com.projeto.modelo.service.imp;
 
 import com.projeto.modelo.configuracao.exeption.ExcecoesCustomizada;
+import com.projeto.modelo.controller.dto.request.AssinaturaRequestDTO;
 import com.projeto.modelo.controller.dto.request.AtualizarVendaDTO;
 import com.projeto.modelo.controller.dto.request.PagamentoRequestDTO;
 import com.projeto.modelo.controller.dto.request.bancoInter.boleto.BancoInterBoletoRequestDTO;
@@ -9,6 +10,7 @@ import com.projeto.modelo.controller.dto.request.bancoInter.boleto.BancoInterPag
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.BancoInterPixRequestDTO;
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.BancoInterWebhookRequestDTO;
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.calback.BancoInterCallbackPixDTO;
+import com.projeto.modelo.controller.dto.response.AssinaturaResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.BancoInterWebhookResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterBoletoPDFResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterCodigoBoletoResponseDTO;
@@ -21,6 +23,7 @@ import com.projeto.modelo.model.enums.StatusPagamento;
 import com.projeto.modelo.model.enums.StatusVenda;
 import com.projeto.modelo.repository.ConfigWebhookRepository;
 import com.projeto.modelo.repository.VendaRepository;
+import com.projeto.modelo.service.AssinaturaService;
 import com.projeto.modelo.service.BancoInterService;
 import com.projeto.modelo.service.PagamentoService;
 import com.projeto.modelo.service.VendaService;
@@ -47,7 +50,11 @@ public class PagamentoServiceImp implements PagamentoService {
     private VendaService vendaService;
 
     @Autowired
+    private AssinaturaService assinaturaService;
+
+    @Autowired
     private VendaRepository vendaRepository;
+
 
     @Value("${inter.duracao-pix}")
     private Integer DURACAO_PIX;
@@ -71,6 +78,10 @@ public class PagamentoServiceImp implements PagamentoService {
         if (webhook == null) {
             this.cadastrarWebhooks(metodoPagamento, this.getBaseWebhookUrl());
         }
+    }
+
+    private AssinaturaResponseDTO criarAssinatura(AssinaturaRequestDTO dto) {
+        return assinaturaService.criarAssinatura(dto);
     }
 
     @Override
@@ -170,6 +181,10 @@ public class PagamentoServiceImp implements PagamentoService {
     public void callbackPix(List<BancoInterCallbackPixDTO> bancoInterCallbackPixDTO) {
         for (BancoInterCallbackPixDTO dto : bancoInterCallbackPixDTO) {
             vendaService.confirmarPagamento(dto.txid(), StatusPagamento.APROVADO, StatusVenda.FINALIZADO, dto.horario().toLocalDateTime());
+            Venda venda = vendaRepository.buscarPorVerificador(dto.txid()).orElseThrow(() -> new ExcecoesCustomizada("Venda não encontrada!", HttpStatus.NOT_FOUND));
+            this.criarAssinatura(AssinaturaRequestDTO.builder()
+                    .idVenda(venda.getId())
+                    .build());
         }
     }
 
@@ -185,11 +200,10 @@ public class PagamentoServiceImp implements PagamentoService {
             }
 
             vendaService.confirmarPagamento(dto.codigoSolicitacao(), statusPagamento, statusVenda, dataPagamento);
+            Venda venda = vendaRepository.buscarPorVerificador(dto.codigoSolicitacao()).orElseThrow(() -> new ExcecoesCustomizada("Venda não encontrada!", HttpStatus.NOT_FOUND));
+            this.criarAssinatura(AssinaturaRequestDTO.builder()
+                    .idVenda(venda.getId())
+                    .build());
         }
-    }
-
-    @Override
-    public void callbackCartao() {
-
     }
 }

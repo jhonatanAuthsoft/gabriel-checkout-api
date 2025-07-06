@@ -21,12 +21,7 @@ public interface PagamentoService {
 
     void pagarComCartao();
 
-    void callbackPix(List<BancoInterCallbackPixDTO> bancoInterCallbackPixDTO) ;
+    void callbackPix(List<BancoInterCallbackPixDTO> bancoInterCallbackPixDTO);
 
     void callbackBoleto(List<BancoInterCallbackBoletoDTO> bancoInterCallbackBoleto);
-
-    void callbackCartao();
-
-
-
 }
