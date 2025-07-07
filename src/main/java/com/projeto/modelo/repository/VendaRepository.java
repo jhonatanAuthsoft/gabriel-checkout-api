@@ -22,6 +22,6 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
             nativeQuery = true)
     Page<Venda> listarTodosPorClient(Pageable pageable, @Param("idCliente") Long idCliente);
 
-    @Query(value = "SELECT * FROM vendas WHERE txid = :verificador OR codigo_solicitacao = :verificador", nativeQuery = true)
+    @Query(value = "SELECT * FROM vendas WHERE txid = :verificador OR codigo_solicitacao = :verificador OR id_pagamento_credito = :verificador", nativeQuery = true)
     Optional<Venda> buscarPorVerificador(@Param("verificador") String verificador);
 }

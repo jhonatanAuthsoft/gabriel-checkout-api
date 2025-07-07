@@ -108,7 +108,7 @@ public class VendaServiceImp implements VendaService {
 
     @Override
     public void confirmarPagamento(String verificador, StatusPagamento statusPagamento, StatusVenda statusVenda, LocalDateTime dataPagamento) {
-        Venda venda = vendaRepository.buscarPorVerificador(verificador).orElseThrow(() -> new ExcecoesCustomizada("Venda não encontrada!", HttpStatus.NOT_FOUND));
+        Venda venda = vendaRepository.buscarPorVerificador(verificador).orElseThrow(() -> new ExcecoesCustomizada("Venda não encontrada! aq", HttpStatus.NOT_FOUND));
         vendaMapper.confirmarPagamento(venda, statusPagamento, statusVenda, dataPagamento);
         vendaRepository.save(venda);
     }

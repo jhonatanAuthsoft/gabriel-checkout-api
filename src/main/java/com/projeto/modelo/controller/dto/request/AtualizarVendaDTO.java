@@ -5,6 +5,7 @@ import lombok.Builder;
 @Builder
 public record AtualizarVendaDTO(
         String txid,
-        String codigoSolicitacao
+        String codigoSolicitacao,
+        String idPagamentoCartao
 ) {
 }

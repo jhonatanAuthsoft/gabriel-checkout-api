@@ -40,6 +40,7 @@ public class Usuario implements UserDetails, Serializable {
     private String email;
 
     @Column(name = "senha", nullable = false)
+    @JsonIgnore
     private String senha;
 
     @Column(name = "status", nullable = false)

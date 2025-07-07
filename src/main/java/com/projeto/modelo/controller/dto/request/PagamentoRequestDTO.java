@@ -11,7 +11,8 @@ public record PagamentoRequestDTO(
         MetodoPagamento tipoCobranca,
         @Email
         String email,
-        Long idVenda
+        Long idVenda,
+        DadosCartao dadosCartao
 ) {
     public PagamentoRequestDTO {
         if (idVenda == null || idVenda == 0) {

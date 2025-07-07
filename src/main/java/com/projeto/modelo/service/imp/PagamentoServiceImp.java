@@ -10,23 +10,21 @@ import com.projeto.modelo.controller.dto.request.bancoInter.boleto.BancoInterPag
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.BancoInterPixRequestDTO;
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.BancoInterWebhookRequestDTO;
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.calback.BancoInterCallbackPixDTO;
+import com.projeto.modelo.controller.dto.request.cielo.*;
 import com.projeto.modelo.controller.dto.response.AssinaturaResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.BancoInterWebhookResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterBoletoPDFResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterCodigoBoletoResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.pix.BancoInterPixResponseDTO;
+import com.projeto.modelo.controller.dto.response.cielo.CieloResponse;
+import com.projeto.modelo.mapper.VendaMapper;
 import com.projeto.modelo.model.entity.ConfigWebhook;
 import com.projeto.modelo.model.entity.Usuario;
 import com.projeto.modelo.model.entity.Venda;
-import com.projeto.modelo.model.enums.MetodoPagamento;
-import com.projeto.modelo.model.enums.StatusPagamento;
-import com.projeto.modelo.model.enums.StatusVenda;
+import com.projeto.modelo.model.enums.*;
 import com.projeto.modelo.repository.ConfigWebhookRepository;
 import com.projeto.modelo.repository.VendaRepository;
-import com.projeto.modelo.service.AssinaturaService;
-import com.projeto.modelo.service.BancoInterService;
-import com.projeto.modelo.service.PagamentoService;
-import com.projeto.modelo.service.VendaService;
+import com.projeto.modelo.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -42,6 +40,9 @@ public class PagamentoServiceImp implements PagamentoService {
 
     @Autowired
     private BancoInterService bancoInterService;
+
+    @Autowired
+    private CieloService cieloService;
 
     @Autowired
     private ConfigWebhookRepository configWebhookRepository;
@@ -61,6 +62,11 @@ public class PagamentoServiceImp implements PagamentoService {
 
     @Value("${inter.dias-vencimento-boleto}")
     private Integer DIAS_VENCIMENTO_BOLETO;
+
+    @Value("${cielo.soft-descriptor}")
+    private String SOFT_DESCRIPTOR;
+    @Autowired
+    private VendaMapper vendaMapper;
 
     private String getBaseWebhookUrl() {
         Optional<ConfigWebhook> baseUrl = configWebhookRepository.findById(1L);
@@ -127,6 +133,10 @@ public class PagamentoServiceImp implements PagamentoService {
         Venda venda = vendaRepository.findById(dto.idVenda()).orElseThrow(() -> new ExcecoesCustomizada("Venda não Encontrada!", HttpStatus.NOT_FOUND));
         Usuario cliente = venda.getCliente();
 
+        if (venda.getStatusPagamento().equals(StatusPagamento.APROVADO) && venda.getStatusVenda().equals(StatusVenda.FINALIZADO)) {
+            throw new ExcecoesCustomizada("Esse pedido já foi pago e finalizado!", HttpStatus.BAD_REQUEST);
+        }
+
         BancoInterPixResponseDTO responsePix = bancoInterService.geraPix(BancoInterPixRequestDTO.builder()
                 .expiracao(DURACAO_PIX)
                 .devedorCpfCnpj(cliente.getCpf())
@@ -145,6 +155,10 @@ public class PagamentoServiceImp implements PagamentoService {
 
         Venda venda = vendaRepository.findById(dto.idVenda()).orElseThrow(() -> new ExcecoesCustomizada("Venda não Encontrada!", HttpStatus.NOT_FOUND));
         Usuario cliente = venda.getCliente();
+
+        if (venda.getStatusPagamento().equals(StatusPagamento.APROVADO) && venda.getStatusVenda().equals(StatusVenda.FINALIZADO)) {
+            throw new ExcecoesCustomizada("Esse pedido já foi pago e finalizado!", HttpStatus.BAD_REQUEST);
+        }
 
         BancoInterCodigoBoletoResponseDTO responseBoleto = bancoInterService.gerarBoleto(BancoInterBoletoRequestDTO.builder()
                 .valorPagamento(venda.getValorPago())
@@ -173,8 +187,63 @@ public class PagamentoServiceImp implements PagamentoService {
     }
 
     @Override
-    public void pagarComCartao() {
+    public Boolean pagarComCartao(PagamentoRequestDTO dto) {
+        Venda venda = vendaRepository.findById(dto.idVenda()).orElseThrow(() -> new ExcecoesCustomizada("Venda não Encontrada!", HttpStatus.NOT_FOUND));
+        Usuario cliente = venda.getCliente();
+        
+        if (venda.getStatusPagamento().equals(StatusPagamento.APROVADO) && venda.getStatusVenda().equals(StatusVenda.FINALIZADO)) {
+            throw new ExcecoesCustomizada("Esse pedido já foi pago e finalizado!", HttpStatus.BAD_REQUEST);
+        }
 
+        CieloResponse responseCielo = cieloService.pagarCielo(CieloReceberPagamentoCartao.builder()
+                .merchantOrderId(dto.idVenda().toString())
+                .proprietario(CieloProprietario.builder()
+                        .nome(cliente.getNome())
+                        .cpfCnpjRg(cliente.getCpf())
+                        .email(dto.email())
+                        .enderecoProprietario(Endereco.builder()
+                                .logradouro(cliente.getEndereco().endereco())
+                                .numero(cliente.getEndereco().numeroResidencia())
+                                .complemento(cliente.getEndereco().complementoEndereco())
+                                .cep(cliente.getEndereco().cep())
+                                .cidade(cliente.getEndereco().cidade())
+                                .estado(cliente.getEndereco().uf().toString())
+                                .pais("BRA")
+                                .build())
+                        .enderecoCobranca(Endereco.builder()
+                                .logradouro(cliente.getEndereco().endereco())
+                                .numero(cliente.getEndereco().numeroResidencia())
+                                .complemento(cliente.getEndereco().complementoEndereco())
+                                .cep(cliente.getEndereco().cep())
+                                .cidade(cliente.getEndereco().cidade())
+                                .estado(cliente.getEndereco().uf().toString())
+                                .pais("BRA")
+                                .build())
+                        .build())
+                .pagamento(CieloPagamento.builder()
+                        .tipoCartao(TipoCartao.CREDITO)
+                        .valor(venda.getValorPago())
+                        .moeda("BRL")
+                        .pais("BRA")
+                        .softDescriptor(SOFT_DESCRIPTOR)
+                        .parcelas(dto.dadosCartao().parcelas())
+                        .tipoParcelamento(TipoParcelamento.COMPRADOR)
+                        .capture(true)
+                        .cieloCartao(CieloCartao.builder()
+                                .numeroCartao(dto.dadosCartao().numeroCartao())
+                                .nomeImpresso(dto.dadosCartao().nomeImpresso())
+                                .dataVencimento(dto.dadosCartao().dataVencimento())
+                                .codigoSeguranca(dto.dadosCartao().codigoSeguranca())
+                                .bandeiraCartao(dto.dadosCartao().bandeiraCartao())
+                                .build())
+                        .build())
+                .build());
+
+        vendaService.gerarPagamento(venda.getId(), AtualizarVendaDTO.builder()
+                .idPagamentoCartao(responseCielo.pagamento().idPagamento())
+                .build());
+
+        return this.callbackCartao(responseCielo);
     }
 
     @Override
@@ -204,6 +273,20 @@ public class PagamentoServiceImp implements PagamentoService {
             this.criarAssinatura(AssinaturaRequestDTO.builder()
                     .idVenda(venda.getId())
                     .build());
+        }
+    }
+
+    @Override
+    public Boolean callbackCartao(CieloResponse cardResponse) {
+        if (cardResponse.pagamento().status().equals(2) && cardResponse.pagamento().mensagemRetorno().equals("Operation Successful")) {
+            vendaService.confirmarPagamento(cardResponse.pagamento().idPagamento(), StatusPagamento.APROVADO, StatusVenda.FINALIZADO, LocalDateTime.parse(cardResponse.pagamento().dataCaptura().replaceAll(" ", "T")));
+
+            this.criarAssinatura(AssinaturaRequestDTO.builder()
+                    .idVenda(Long.valueOf(cardResponse.idPedidoLoja()))
+                    .build());
+            return true;
+        } else {
+            return false;
         }
     }
 }
