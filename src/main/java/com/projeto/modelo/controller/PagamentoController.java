@@ -32,12 +32,12 @@ public class PagamentoController {
     public ResponseEntity<BancoInterBoletoPDFResponseDTO> pagarBoleto(@RequestBody PagamentoRequestDTO pagamentoRequestDTO) {
         return new ResponseEntity<>(this.pagamentoService.pagarComBoleto(pagamentoRequestDTO), HttpStatus.OK);
     }
-    /*
+
     @PostMapping("/cartao")
-    public ResponseEntity<BancoInterPixResponseDTO> pagarPix(@RequestBody PagamentoRequestDTO pagamentoRequestDTO) {
-        return new ResponseEntity<>(this.pagamentoService.pagarComPix(pagamentoRequestDTO), HttpStatus.OK);
+    public ResponseEntity<Boolean> pagarCartao(@RequestBody PagamentoRequestDTO pagamentoRequestDTO) {
+        return new ResponseEntity<>(this.pagamentoService.pagarComCartao(pagamentoRequestDTO), HttpStatus.OK);
     }
-    */
+
     @PostMapping("/callback/pix")
     public ResponseEntity<Void> callbackPix(@RequestBody List<BancoInterCallbackPixDTO> bancoInterCallbackPixDTO) {
         this.pagamentoService.callbackPix(bancoInterCallbackPixDTO);
@@ -49,12 +49,4 @@ public class PagamentoController {
         this.pagamentoService.callbackBoleto(bancoInterCallbackBoleto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-    /*
-    @PostMapping("/callback/cartao")
-    public ResponseEntity<Void> callbackBoleto(@RequestBody List<BancoInterCallbackBoletoDTO> bancoInterCallbackBoleto) {
-        this.pagamentoService.callbackCartao(bancoInterCallbackBoleto);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-     */
 }
