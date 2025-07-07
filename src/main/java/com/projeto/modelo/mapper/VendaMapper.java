@@ -144,6 +144,10 @@ public class VendaMapper {
             venda.setMetodoPagamento(MetodoPagamento.BOLETO);
             venda.setCodigoSolicitacao(dto.codigoSolicitacao());
             venda.setStatusPagamento(StatusPagamento.PENDENTE);
+        } else if (!StringUtils.isNullOrEmpty(dto.idPagamentoCartao())) {
+            venda.setMetodoPagamento(MetodoPagamento.CARTAO);
+            venda.setIdPagamentoCredito(dto.idPagamentoCartao());
+            venda.setStatusPagamento(StatusPagamento.PENDENTE);
         }
     }
 
