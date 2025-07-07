@@ -87,7 +87,8 @@ public class UsuarioMapper {
         usuario.setNome(dto.nome());
         usuario.setEmail(dto.email());
         usuario.setCpf(dto.cpf());
+        usuario.setCelular(dto.celular());
         usuario.setEndereco(dto.endereco());
-        usuario.setPermissao(permissao);
+        usuario.setPermissao(permissao != null ? permissao : PermissaoStatus.CLIENTE);
     }
 }

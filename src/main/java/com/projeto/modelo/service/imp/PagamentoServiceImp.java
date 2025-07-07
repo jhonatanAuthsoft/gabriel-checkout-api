@@ -100,6 +100,12 @@ public class PagamentoServiceImp implements PagamentoService {
         return assinaturaService.criarAssinatura(dto);
     }
 
+    private void validarStatusPagamentoEVenda(StatusPagamento statusPagamento, StatusVenda statusVenda) {
+        if ((statusPagamento != null && statusPagamento.equals(StatusPagamento.APROVADO)) && (statusVenda != null && statusVenda.equals(StatusVenda.FINALIZADO))) {
+            throw new ExcecoesCustomizada("Esse pedido já foi pago e finalizado!", HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @Override
     public BancoInterWebhookResponseDTO consultarWebhooks(MetodoPagamento tipoWebhook) {
         if (tipoWebhook.equals(MetodoPagamento.PIX)) {
@@ -143,9 +149,7 @@ public class PagamentoServiceImp implements PagamentoService {
         Venda venda = vendaRepository.findById(dto.idVenda()).orElseThrow(() -> new ExcecoesCustomizada("Venda não Encontrada!", HttpStatus.NOT_FOUND));
         Usuario cliente = venda.getCliente();
 
-        if (venda.getStatusPagamento().equals(StatusPagamento.APROVADO) && venda.getStatusVenda().equals(StatusVenda.FINALIZADO)) {
-            throw new ExcecoesCustomizada("Esse pedido já foi pago e finalizado!", HttpStatus.BAD_REQUEST);
-        }
+        this.validarStatusPagamentoEVenda(venda.getStatusPagamento(), venda.getStatusVenda());
 
         BancoInterPixResponseDTO responsePix = bancoInterService.geraPix(BancoInterPixRequestDTO.builder()
                 .expiracao(DURACAO_PIX)
@@ -166,9 +170,7 @@ public class PagamentoServiceImp implements PagamentoService {
         Venda venda = vendaRepository.findById(dto.idVenda()).orElseThrow(() -> new ExcecoesCustomizada("Venda não Encontrada!", HttpStatus.NOT_FOUND));
         Usuario cliente = venda.getCliente();
 
-        if (venda.getStatusPagamento().equals(StatusPagamento.APROVADO) && venda.getStatusVenda().equals(StatusVenda.FINALIZADO)) {
-            throw new ExcecoesCustomizada("Esse pedido já foi pago e finalizado!", HttpStatus.BAD_REQUEST);
-        }
+        this.validarStatusPagamentoEVenda(venda.getStatusPagamento(), venda.getStatusVenda());
 
         BancoInterCodigoBoletoResponseDTO responseBoleto = bancoInterService.gerarBoleto(BancoInterBoletoRequestDTO.builder()
                 .valorPagamento(venda.getValorPago())
@@ -201,9 +203,7 @@ public class PagamentoServiceImp implements PagamentoService {
         Venda venda = vendaRepository.findById(dto.idVenda()).orElseThrow(() -> new ExcecoesCustomizada("Venda não Encontrada!", HttpStatus.NOT_FOUND));
         Usuario cliente = venda.getCliente();
 
-        if ((venda.getStatusPagamento() != null && venda.getStatusPagamento().equals(StatusPagamento.APROVADO)) && (venda.getStatusVenda() != null && venda.getStatusVenda().equals(StatusVenda.FINALIZADO))) {
-            throw new ExcecoesCustomizada("Esse pedido já foi pago e finalizado!", HttpStatus.BAD_REQUEST);
-        }
+        this.validarStatusPagamentoEVenda(venda.getStatusPagamento(), venda.getStatusVenda());
 
         CieloResponse responseCielo = cieloService.pagarCielo(CieloReceberPagamentoCartao.builder()
                 .merchantOrderId(dto.idVenda().toString())

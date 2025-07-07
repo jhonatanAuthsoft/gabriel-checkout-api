@@ -95,6 +95,7 @@ public class UsuarioServiceImp implements UsuarioService {
 
             usuarioExiste.setDataDelecao(null);
             usuarioExiste.setStatus(UsuarioStatus.ATIVO);
+            this.usuarioMapper.editarUsuario(usuarioExiste, cadastraUsuarioDTO);
             this.usuarioRepository.save(usuarioExiste);
             return this.usuarioMapper.toResponseDTO(usuarioExiste);
         }
