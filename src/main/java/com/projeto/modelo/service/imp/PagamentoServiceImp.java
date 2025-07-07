@@ -263,6 +263,7 @@ public class PagamentoServiceImp implements PagamentoService {
             Venda venda = vendaRepository.buscarPorVerificador(dto.txid()).orElseThrow(() -> new ExcecoesCustomizada("Venda não encontrada!", HttpStatus.NOT_FOUND));
             this.criarAssinatura(AssinaturaRequestDTO.builder()
                     .idVenda(venda.getId())
+                    .statusAssinatura(StatusAssinatura.ATIVO)
                     .build());
         }
     }
@@ -282,19 +283,19 @@ public class PagamentoServiceImp implements PagamentoService {
             Venda venda = vendaRepository.buscarPorVerificador(dto.codigoSolicitacao()).orElseThrow(() -> new ExcecoesCustomizada("Venda não encontrada!", HttpStatus.NOT_FOUND));
             this.criarAssinatura(AssinaturaRequestDTO.builder()
                     .idVenda(venda.getId())
+                    .statusAssinatura(StatusAssinatura.ATIVO)
                     .build());
         }
     }
 
     @Override
     public Boolean callbackCartao(CieloResponse cardResponse) {
-        log.info("cardResponse: {}", cardResponse);
-
         if (cardResponse.pagamento().status().equals(2) && cardResponse.pagamento().mensagemRetorno().equals("Operation Successful")) {
             vendaService.confirmarPagamento(cardResponse.pagamento().idPagamento(), StatusPagamento.APROVADO, StatusVenda.FINALIZADO, LocalDateTime.parse(cardResponse.pagamento().dataCaptura().replaceAll(" ", "T")));
 
             this.criarAssinatura(AssinaturaRequestDTO.builder()
                     .idVenda(Long.valueOf(cardResponse.idPedidoLoja()))
+                    .statusAssinatura(StatusAssinatura.ATIVO)
                     .build());
             return true;
         } else {
