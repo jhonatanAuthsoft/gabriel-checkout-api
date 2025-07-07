@@ -95,6 +95,12 @@ public class UsuarioMapper {
                     usuario.setCelular(dto.celular());
                     usuario.setEndereco(dto.endereco());
                     usuario.setPermissao(permissao);
+                } else if (isUsuarioMesmo) {
+                    usuario.setNome(dto.nome());
+                    usuario.setEmail(dto.email());
+                    usuario.setCpf(dto.cpf());
+                    usuario.setCelular(dto.celular());
+                    usuario.setEndereco(dto.endereco());
                 }
             } else if (isUsuarioMesmo) {
                 usuario.setNome(dto.nome());

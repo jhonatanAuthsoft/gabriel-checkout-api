@@ -115,8 +115,10 @@ public class UsuarioServiceImp implements UsuarioService {
         Usuario usuarioSolicitante = this.usuarioRepository.findByEmail(jwtUtil.extractUsername(token.substring(7))).orElseThrow(() -> new ExcecoesCustomizada("Usuário não encontrado!", HttpStatus.NOT_FOUND));
         Usuario usuarioAEditar = this.usuarioRepository.findById(idUsuario).orElseThrow(() -> new ExcecoesCustomizada("Usuário não encontrado!", HttpStatus.NOT_FOUND));
 
-        if (!usuarioSolicitante.getId().equals(idUsuario) && usuarioAEditar.getPermissao().equals(PermissaoStatus.ADMIN)) {
-            throw new ExcecoesCustomizada("Você não pode editar outros administradores", HttpStatus.UNAUTHORIZED);
+        if (!usuarioSolicitante.getId().equals(idUsuario)) {
+            if (usuarioAEditar.getPermissao().equals(PermissaoStatus.ADMIN)) {
+                throw new ExcecoesCustomizada("Você não pode editar outros administradores", HttpStatus.UNAUTHORIZED);
+            }
         }
 
         if (usuarioAEditar.getPermissao().equals(PermissaoStatus.CLIENTE)) {
