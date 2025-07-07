@@ -94,6 +94,14 @@ public class VendaServiceImp implements VendaService {
             throw new ExcecoesCustomizada("Usuário não autorizado a solicitar reembolso nesse pedido", HttpStatus.UNAUTHORIZED);
         }
 
+        if ((venda.getStatusVenda() != null && !venda.getStatusVenda().equals(StatusVenda.FINALIZADO)) || (venda.getStatusPagamento() != null && !venda.getStatusPagamento().equals(StatusPagamento.APROVADO))) {
+            throw new ExcecoesCustomizada("Apenas pedidos confirmados podem ser reembolsados", HttpStatus.BAD_REQUEST);
+        }
+
+        if (venda.getDataPagamento() != null && venda.getDataPagamento().isBefore(LocalDateTime.now().minusDays(7).plusSeconds(1))) {
+            throw new ExcecoesCustomizada("O Reembolso só pode ser solicitado em até 7 dias!", HttpStatus.BAD_REQUEST);
+        }
+
         venda.setStatusVenda(StatusVenda.CANCELADO);
         venda.setStatusPagamento(StatusPagamento.REEMBOLSO_SOLICITADO);
         return vendaMapper.toResponseDTO(vendaRepository.save(venda));
