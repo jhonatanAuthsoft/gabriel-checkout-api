@@ -201,7 +201,7 @@ public class PagamentoServiceImp implements PagamentoService {
         Venda venda = vendaRepository.findById(dto.idVenda()).orElseThrow(() -> new ExcecoesCustomizada("Venda não Encontrada!", HttpStatus.NOT_FOUND));
         Usuario cliente = venda.getCliente();
 
-        if (venda.getStatusPagamento().equals(StatusPagamento.APROVADO) && venda.getStatusVenda().equals(StatusVenda.FINALIZADO)) {
+        if ((venda.getStatusPagamento() != null && venda.getStatusPagamento().equals(StatusPagamento.APROVADO)) && (venda.getStatusVenda() != null && venda.getStatusVenda().equals(StatusVenda.FINALIZADO))) {
             throw new ExcecoesCustomizada("Esse pedido já foi pago e finalizado!", HttpStatus.BAD_REQUEST);
         }
 
