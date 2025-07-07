@@ -55,7 +55,7 @@ public class EmailServiceImp implements EmailService {
 
     private Properties mailProperties;
 
-    @Value("${email.administrador}")
+    @Value("${administrador.email}")
     private String EMAIL_ADMINISTRADOR;
 
     @Autowired
