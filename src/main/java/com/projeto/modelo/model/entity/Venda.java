@@ -23,7 +23,6 @@ public class Venda {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "id_produto")
     private Produto produto;
 
     @Column(name = "valor_pago")
@@ -38,11 +37,9 @@ public class Venda {
     private String idPagamentoCredito;
 
     @ManyToOne
-    @JoinColumn(name = "id_cupom")
     private Cupom cupomUsado;
 
     @ManyToOne
-    @JoinColumn(name = "id_plano")
     private Plano plano;
 
     @Column(name = "origem_compra")
