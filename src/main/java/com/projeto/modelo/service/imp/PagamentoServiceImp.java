@@ -288,6 +288,8 @@ public class PagamentoServiceImp implements PagamentoService {
 
     @Override
     public Boolean callbackCartao(CieloResponse cardResponse) {
+        log.info("cardResponse: {}", cardResponse);
+
         if (cardResponse.pagamento().status().equals(2) && cardResponse.pagamento().mensagemRetorno().equals("Operation Successful")) {
             vendaService.confirmarPagamento(cardResponse.pagamento().idPagamento(), StatusPagamento.APROVADO, StatusVenda.FINALIZADO, LocalDateTime.parse(cardResponse.pagamento().dataCaptura().replaceAll(" ", "T")));
 
