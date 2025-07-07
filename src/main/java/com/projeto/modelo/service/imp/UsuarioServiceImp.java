@@ -95,7 +95,7 @@ public class UsuarioServiceImp implements UsuarioService {
 
             usuarioExiste.setDataDelecao(null);
             usuarioExiste.setStatus(UsuarioStatus.ATIVO);
-            this.usuarioMapper.editarUsuario(usuarioExiste, cadastraUsuarioDTO);
+            this.usuarioMapper.editarUsuario(usuarioRequisitor, usuarioExiste, cadastraUsuarioDTO);
             this.usuarioRepository.save(usuarioExiste);
             return this.usuarioMapper.toResponseDTO(usuarioExiste);
         }
@@ -127,7 +127,7 @@ public class UsuarioServiceImp implements UsuarioService {
                 throw new ExcecoesCustomizada("Email já existem na base de dados!", HttpStatus.BAD_REQUEST);
         }
 
-        usuarioMapper.editarUsuario(usuarioAEditar, dto);
+        usuarioMapper.editarUsuario(usuarioSolicitante, usuarioAEditar, dto);
         return usuarioMapper.toResponseDTO(usuarioRepository.save(usuarioAEditar));
     }
 

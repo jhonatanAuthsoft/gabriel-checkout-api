@@ -81,14 +81,35 @@ public class UsuarioMapper {
         return usuarios.map(this::toResponseDTO);
     }
 
-    public void editarUsuario(Usuario usuario, CadastraUsuarioDTO dto) {
-        PermissaoStatus permissao = usuario.getPermissao().equals(PermissaoStatus.ADMIN) ? dto.permissao() : usuario.getPermissao();
+    public void editarUsuario(Usuario usuarioRequerente, Usuario usuario, CadastraUsuarioDTO dto) {
+        if (usuarioRequerente != null) {
+            boolean isAdmin = usuarioRequerente.getPermissao() == PermissaoStatus.ADMIN;
+            boolean isUsuarioMesmo = usuarioRequerente.getId().equals(usuario.getId());
 
-        usuario.setNome(dto.nome());
-        usuario.setEmail(dto.email());
-        usuario.setCpf(dto.cpf());
-        usuario.setCelular(dto.celular());
-        usuario.setEndereco(dto.endereco());
-        usuario.setPermissao(permissao != null ? permissao : PermissaoStatus.CLIENTE);
+            if (isAdmin) {
+                if (usuario.getPermissao() != PermissaoStatus.ADMIN) {
+                    PermissaoStatus permissao = dto.permissao() != null ? dto.permissao() : usuario.getPermissao();
+                    usuario.setNome(dto.nome());
+                    usuario.setEmail(dto.email());
+                    usuario.setCpf(dto.cpf());
+                    usuario.setCelular(dto.celular());
+                    usuario.setEndereco(dto.endereco());
+                    usuario.setPermissao(permissao);
+                }
+            } else if (isUsuarioMesmo) {
+                usuario.setNome(dto.nome());
+                usuario.setEmail(dto.email());
+                usuario.setCpf(dto.cpf());
+                usuario.setCelular(dto.celular());
+                usuario.setEndereco(dto.endereco());
+            }
+        } else {
+            usuario.setNome(dto.nome());
+            usuario.setEmail(dto.email());
+            usuario.setCpf(dto.cpf());
+            usuario.setCelular(dto.celular());
+            usuario.setEndereco(dto.endereco());
+            usuario.setPermissao(PermissaoStatus.CLIENTE);
+        }
     }
 }
