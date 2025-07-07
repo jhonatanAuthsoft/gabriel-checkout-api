@@ -23,18 +23,22 @@ import com.projeto.modelo.model.entity.Usuario;
 import com.projeto.modelo.model.entity.Venda;
 import com.projeto.modelo.model.enums.*;
 import com.projeto.modelo.repository.ConfigWebhookRepository;
+import com.projeto.modelo.repository.EmailService;
 import com.projeto.modelo.repository.VendaRepository;
 import com.projeto.modelo.service.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class PagamentoServiceImp implements PagamentoService {
 
@@ -67,6 +71,8 @@ public class PagamentoServiceImp implements PagamentoService {
     private String SOFT_DESCRIPTOR;
     @Autowired
     private VendaMapper vendaMapper;
+    @Autowired
+    private EmailService emailService;
 
     private String getBaseWebhookUrl() {
         Optional<ConfigWebhook> baseUrl = configWebhookRepository.findById(1L);
@@ -74,7 +80,11 @@ public class PagamentoServiceImp implements PagamentoService {
         if (baseUrl.isPresent()) {
             return baseUrl.get().getUrl();
         } else {
-            // mandar e-mail dizendo que vai dar merda
+            try {
+                emailService.enviarEmailWebhookNaoCadastrado();
+            } catch (IOException e) {
+                log.error("Email não enviado, um problema ocorreu: {}", e.getMessage());
+            }
         }
         return null;
     }

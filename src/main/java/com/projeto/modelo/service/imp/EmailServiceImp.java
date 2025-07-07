@@ -55,7 +55,8 @@ public class EmailServiceImp implements EmailService {
 
     private Properties mailProperties;
 
-
+    @Value("email.administrador}")
+    private String EMAIL_ADMINISTRADOR;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -63,6 +64,7 @@ public class EmailServiceImp implements EmailService {
 
     private static String CADASTRA_USUARIO = "templates/cadastroUsuario.html";
     private static String ESQUECEU_SENHA = "templates/esqueceuSenha.html";
+    private static String CADASTRE_WEBHOOK = "templates/cadastrarWebhook.html";
 
     @PostConstruct
     public void init() {
@@ -74,7 +76,7 @@ public class EmailServiceImp implements EmailService {
         mailProperties.put("mail.smtp.port", smtpPort);
         // mailProperties.put("mail.smtp.ssl.trust", sslTrust);
     }
-    
+
     @Async
     @Override
     public void cadastraUsuario(String toEmail, String senha) {
@@ -100,6 +102,12 @@ public class EmailServiceImp implements EmailService {
         } catch (Exception e) {
             log.error("Erro ao enviar e-mail de recuperação de senha", e);
         }
+    }
+
+    @Override
+    public void enviarEmailWebhookNaoCadastrado() throws IOException {
+        String corpoEmail = TemplateUtils.htmlToString(CADASTRE_WEBHOOK);
+        this.enviaEmail(EMAIL_ADMINISTRADOR, corpoEmail, "Webhook não cadastrado!");
     }
 
     private String corpoEsqueceuSenha(int codigoVerificador) throws IOException {
