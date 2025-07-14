@@ -6,8 +6,11 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Builder
-public record MesAMesChargeback(
-        Mes mes,
+public record MesAMesChargebackQuery(
+        BigDecimal mes,
         Long total
 ) {
+    public Mes mesEnum() {
+        return Mes.fromNumber(mes.intValue());
+    }
 }
