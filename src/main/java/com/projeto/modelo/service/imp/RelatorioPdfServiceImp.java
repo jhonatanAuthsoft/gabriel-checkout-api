@@ -15,6 +15,7 @@ import com.projeto.modelo.model.entity.Venda;
 import com.projeto.modelo.model.entity.Usuario;
 import com.projeto.modelo.repository.VendaRepository;
 import com.projeto.modelo.repository.UsuarioRepository;
+import com.projeto.modelo.service.RelatorioPdfService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-public class RelatorioPdfService {
+public class RelatorioPdfServiceImp implements RelatorioPdfService {
 
     @Autowired
     private VendaRepository vendaRepository;

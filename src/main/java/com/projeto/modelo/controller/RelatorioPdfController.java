@@ -3,9 +3,7 @@ package com.projeto.modelo.controller;
 import com.projeto.modelo.controller.dto.request.RelatorioVendasDTO;
 import com.projeto.modelo.controller.dto.response.dashboard.DashboardResponseDTO;
 import com.projeto.modelo.service.DashboardService;
-import com.projeto.modelo.service.imp.RelatorioPdfService;
-import com.projeto.modelo.model.entity.Venda;
-import com.projeto.modelo.repository.VendaRepository;
+import com.projeto.modelo.service.imp.RelatorioPdfServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/relatorio-pdf")
@@ -29,7 +26,7 @@ public class RelatorioPdfController {
     @Autowired
     private DashboardService dashboardService;
     @Autowired
-    private RelatorioPdfService relatorioPdfService;
+    private RelatorioPdfServiceImp relatorioPdfServiceImp;
 
     @GetMapping(value = "/dashboard", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> gerarRelatorioDashboard(
@@ -37,7 +34,7 @@ public class RelatorioPdfController {
             @RequestParam("dataFim") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim
     ) {
         DashboardResponseDTO dashboard = dashboardService.carregarDashboard(dataInicial, dataFim);
-        byte[] pdf = relatorioPdfService.gerarRelatorioDashboard(dashboard);
+        byte[] pdf = relatorioPdfServiceImp.gerarRelatorioDashboard(dashboard);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=relatorio-dashboard.pdf");
@@ -49,7 +46,7 @@ public class RelatorioPdfController {
 
     @PostMapping(value = "/vendas", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> gerarRelatorioVendasSelecionadas(@RequestBody RelatorioVendasDTO ids) {
-        byte[] pdf = relatorioPdfService.gerarRelatorioVendasSelecionadas(ids);
+        byte[] pdf = relatorioPdfServiceImp.gerarRelatorioVendasSelecionadas(ids);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=relatorio-vendas-selecionadas.pdf");
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -59,7 +56,7 @@ public class RelatorioPdfController {
 
     @GetMapping(value = "/clientes", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> gerarRelatoriosDeClientes() {
-        byte[] pdf = relatorioPdfService.gerarRelatorioClientes();
+        byte[] pdf = relatorioPdfServiceImp.gerarRelatorioClientes();
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=relatorio-clientes.pdf");
         headers.setContentType(MediaType.APPLICATION_PDF);
