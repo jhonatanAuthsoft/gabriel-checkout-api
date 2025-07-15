@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/relatorio-pdf")
+@RequestMapping("/relatorio/pdf")
 public class RelatorioPdfController {
 
     @Autowired
