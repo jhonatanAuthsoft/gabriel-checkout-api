@@ -55,17 +55,17 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
             nativeQuery = true)
     List<ProdutosMaisVendidos> getProdutosMaisVendidos();
 
-    @Query(value = "SELECT v.id AS idVenda, u.name AS nome, v.data_reembolso AS dataReembolso " +
-                   "FROM vendas v JOIN usuarios u ON v.id_cliente = u.id " +
+    @Query(value = "SELECT v.id AS idVenda, p.nome AS nome, CAST(v.data_reembolso AS TIMESTAMP) AS dataReembolso " +
+                   "FROM vendas v JOIN produtos p ON v.produto_id = p.id " +
                    "WHERE v.data_reembolso IS NOT NULL AND v.data_reembolso >= NOW() - INTERVAL '30 days' " +
                    "ORDER BY v.data_reembolso DESC", nativeQuery = true)
-    List<Reembolsos> getReembolsosUltimos30Dias();
+    List<Object[]> getReembolsosUltimos30Dias();
 
     @Query(value = "SELECT EXTRACT(MONTH FROM v.data_pagamento) AS mes, COUNT(*) AS total " +
                    "FROM vendas v WHERE v.status_pagamento = 'REEMBOLSADO' AND v.data_pagamento IS NOT NULL " +
                    "AND v.data_pagamento >= :dataInicio AND v.data_pagamento <= :dataFim " +
                    "GROUP BY mes ORDER BY mes", nativeQuery = true)
-    List<MesAMesChargeback> getMesAMesChargeback(@Param("dataInicio") LocalDateTime dataInicio, @Param("dataFim") LocalDateTime dataFim);
+    List<MesAMesChargebackQuery> getMesAMesChargeback(@Param("dataInicio") LocalDateTime dataInicio, @Param("dataFim") LocalDateTime dataFim);
 
     @Query(value = "SELECT COUNT(*) FROM vendas v WHERE v.status_pagamento = 'REEMBOLSADO' " +
                    "AND v.data_pagamento >= :dataInicio AND v.data_pagamento <= :dataFim", nativeQuery = true)
@@ -73,4 +73,10 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
 
     @Query(value = "SELECT EXTRACT(MONTH FROM v.data_pagamento) AS mes, SUM(v.valor_pago) AS totalVenda, CAST(0.0 AS NUMERIC) AS totalCampanha, CAST(0.0 AS NUMERIC) AS totalLink FROM vendas v WHERE v.status_venda = 'FINALIZADO' AND v.data_pagamento >= :dataInicio AND v.data_pagamento <= :dataFim GROUP BY mes ORDER BY mes", nativeQuery = true)
     List<MesAMesVendasPeriodoQuery> getMesAMesVendasPorPeriodo(@Param("dataInicio") LocalDateTime dataInicio, @Param("dataFim") LocalDateTime dataFim);
+
+    @Query(value = "SELECT * FROM vendas WHERE status_venda = 'FINALIZADO' AND data_pagamento >= :dataInicio AND data_pagamento <= :dataFim ORDER BY id_cliente, data_pagamento", nativeQuery = true)
+    List<Venda> findVendasFinalizadasNoPeriodo(@Param("dataInicio") LocalDateTime dataInicio, @Param("dataFim") LocalDateTime dataFim);
+
+    @Query(value = "SELECT * FROM vendas WHERE status_venda = 'CANCELADO' AND data_pagamento >= :dataInicio AND data_pagamento <= :dataFim ORDER BY id_cliente, data_pagamento", nativeQuery = true)
+    List<Venda> findVendasCanceladas(@Param("dataInicio") LocalDateTime dataInicio, @Param("dataFim") LocalDateTime dataFim);
 }

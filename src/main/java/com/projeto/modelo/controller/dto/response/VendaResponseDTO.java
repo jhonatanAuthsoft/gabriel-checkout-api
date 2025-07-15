@@ -5,6 +5,7 @@ import com.projeto.modelo.model.entity.Produto;
 import com.projeto.modelo.model.entity.Usuario;
 import com.projeto.modelo.model.enums.*;
 import lombok.Builder;
+import org.springframework.cglib.core.Local;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ public record VendaResponseDTO(
         Usuario vendedor,
         LocalDateTime dataCompra,
         LocalDateTime dataPagamento,
-        LocalDateTime dataAtualizacao
+        LocalDateTime dataAtualizacao,
+        LocalDateTime dataReembolso
 ) {
 }

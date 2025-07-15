@@ -97,6 +97,7 @@ public class VendaMapper {
                 .dataCompra(venda.getDataCompra())
                 .dataPagamento(venda.getDataPagamento())
                 .dataAtualizacao(venda.getDataAtualizacao())
+                .dataReembolso(venda.getDataReembolso())
                 .build();
     }
 
@@ -133,6 +134,7 @@ public class VendaMapper {
         venda.setTipoRecorrencia(dto.tipoRecorrencia());
         venda.setCliente(cliente);
         venda.setVendedor(vendedor);
+        venda.setDataReembolso(dto.dataReembolso());
     }
 
     public void gerarPagamento(Venda venda, AtualizarVendaDTO dto) {

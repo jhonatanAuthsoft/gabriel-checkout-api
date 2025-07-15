@@ -3,6 +3,7 @@ package com.projeto.modelo.controller.dto.request;
 import com.projeto.modelo.model.enums.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public record AtualizarPedidoAdmin(
         Long idProduto,
@@ -15,6 +16,7 @@ public record AtualizarPedidoAdmin(
         StatusVenda statusVenda,
         TipoCobranca tipoRecorrencia,
         Long idCliente,
-        Long idVendedor
+        Long idVendedor,
+        LocalDateTime dataReembolso
 ) {
 }
