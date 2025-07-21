@@ -101,7 +101,7 @@ public class UsuarioServiceImp implements UsuarioService {
         }
 
         String senha = this.gerarSenha();
-        String senhaCriptografada = this.passwordEncoder.encode("123456");
+        String senhaCriptografada = this.passwordEncoder.encode(senha);
 
         Usuario usuario = this.usuarioMapper.toEntity(cadastraUsuarioDTO, senhaCriptografada, usuarioRequisitor); //passar aqui o token, caso não venha token, cadastra como cliente independente do que ta vindo no dto
 
