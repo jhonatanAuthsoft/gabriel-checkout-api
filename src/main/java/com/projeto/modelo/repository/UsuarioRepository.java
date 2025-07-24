@@ -27,10 +27,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Query(value = "SELECT * FROM usuarios WHERE email = :email AND id <> :idUsuario", nativeQuery = true)
     List<Usuario> findByEmailAndNotId(@Param("email") String email, @Param("idUsuario") Long idUsuario);
 
-    @Query(value = "SELECT * FROM usuarios WHERE permissao = 'CLIENTE AND data_delecao IS NULL'", nativeQuery = true)
+    @Query(value = "SELECT * FROM usuarios WHERE permissao = 'CLIENTE' AND data_delecao IS NULL", nativeQuery = true)
     Page<Usuario> listarTodosClientes(Pageable pageable);
 
-    @Query(value = "SELECT * FROM usuarios WHERE permissao <> 'CLIENTE AND data_delecao IS NULL'", nativeQuery = true)
+    @Query(value = "SELECT * FROM usuarios WHERE permissao <> 'CLIENTE' AND data_delecao IS NULL", nativeQuery = true)
     Page<Usuario> listarUsuarios(Pageable pageable);
 
 }
