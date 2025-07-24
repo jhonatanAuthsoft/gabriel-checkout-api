@@ -65,6 +65,10 @@ public class VendaMapper {
             }
 
             valorPago = valorPago.subtract(valorDesconto);
+
+            if (valorPago.compareTo(BigDecimal.ZERO) < 0) {
+                valorPago = BigDecimal.ZERO;
+            }
         }
 
         return Venda.builder()
