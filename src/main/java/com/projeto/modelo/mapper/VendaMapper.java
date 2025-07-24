@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Component
@@ -60,7 +61,7 @@ public class VendaMapper {
             if (cupom.getTipoDesconto().equals(TipoDesconto.VALOR)) {
                 valorDesconto = cupom.getValor();
             } else {
-                valorDesconto = valorPago.multiply(cupom.getValor());
+                valorDesconto = valorPago.multiply(cupom.getValor()).divide(new BigDecimal(100), RoundingMode.HALF_EVEN);
             }
 
             valorPago = valorPago.subtract(valorDesconto);
