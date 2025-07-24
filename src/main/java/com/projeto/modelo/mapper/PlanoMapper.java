@@ -2,6 +2,7 @@ package com.projeto.modelo.mapper;
 
 import com.projeto.modelo.model.entity.Plano;
 import com.projeto.modelo.model.entity.Produto;
+import com.projeto.modelo.model.enums.ProdutoStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -14,6 +15,10 @@ public class PlanoMapper {
         List<Plano> planos = new ArrayList<>();
 
         for (Plano planoRecebido : plano) {
+            ProdutoStatus status = planoRecebido.getStatus() != null
+                    ? planoRecebido.getStatus()
+                    : ProdutoStatus.ATIVO;
+
             planos.add(Plano.builder()
                     .nome(planoRecebido.getNome())
                     .peridiocidade(planoRecebido.getPeridiocidade())
@@ -23,6 +28,7 @@ public class PlanoMapper {
                     .primeiraParcela(planoRecebido.getPrimeiraParcela())
                     .recorrencia(planoRecebido.getRecorrencia())
                     .sku(planoRecebido.getSku())
+                    .status(status)
                     .produto(produto)
                     .build());
         }
@@ -78,5 +84,4 @@ public class PlanoMapper {
     }
 
 
-
-} 
+}

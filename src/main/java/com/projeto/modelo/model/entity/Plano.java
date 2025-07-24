@@ -2,6 +2,7 @@ package com.projeto.modelo.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projeto.modelo.model.enums.Peridiocidade;
+import com.projeto.modelo.model.enums.ProdutoStatus;
 import com.projeto.modelo.model.enums.TipoPrimeiraParcela;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,4 +35,7 @@ public class Plano {
     @JsonIgnore
     @ManyToOne
     private Produto produto;
+
+    @Enumerated(EnumType.STRING)
+    private ProdutoStatus status = ProdutoStatus.ATIVO;
 }
