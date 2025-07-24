@@ -46,7 +46,7 @@ public class VendaMapper {
             vendedor = usuarioRepository.findById(dto.idCliente()).orElseThrow(() -> new ExcecoesCustomizada("Cliente não encontrado", HttpStatus.NOT_FOUND));
         }
 
-        if (dto.codigoCupom() != null && StringUtils.isNullOrEmpty(dto.codigoCupom())) {
+        if (dto.codigoCupom() != null && !StringUtils.isNullOrEmpty(dto.codigoCupom())) {
             cupom = produto.getCupom().stream()
                     .filter(c -> c.getCodigoCupom().equals(dto.codigoCupom()))
                     .findFirst()

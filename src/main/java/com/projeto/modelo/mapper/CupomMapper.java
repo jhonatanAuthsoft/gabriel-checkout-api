@@ -1,7 +1,11 @@
 package com.projeto.modelo.mapper;
 
+import com.projeto.modelo.configuracao.exeption.ExcecoesCustomizada;
 import com.projeto.modelo.model.entity.Cupom;
 import com.projeto.modelo.model.entity.Produto;
+import com.projeto.modelo.model.enums.ProdutoStatus;
+import com.projeto.modelo.util.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -10,20 +14,35 @@ import java.util.stream.Collectors;
 
 @Component
 public class CupomMapper {
-    public List<Cupom> toEntity(List<Cupom> cupom, Produto produto) {
-        List<Cupom> cupoms = new ArrayList<>();
+    public List<Cupom> toEntity(List<Cupom> cupons, Produto produto) {
+        List<Cupom> resultado = new ArrayList<>();
+        Set<String> codigosVistos = new HashSet<>();
 
-        for (Cupom cupomRecebido : cupom) {
-            cupoms.add(Cupom.builder()
-                    .codigoCupom(cupomRecebido.getCodigoCupom())
+        for (Cupom cupomRecebido : cupons) {
+            String codigo = cupomRecebido.getCodigoCupom();
+            if (StringUtils.isNullOrEmpty(codigo)) {
+                throw new ExcecoesCustomizada("Código do cupom é obrigatório.", HttpStatus.BAD_REQUEST);
+            }
+
+            if (!codigosVistos.add(codigo)) {
+                continue;
+            }
+
+            ProdutoStatus status = cupomRecebido.getStatus() != null
+                    ? cupomRecebido.getStatus()
+                    : ProdutoStatus.ATIVO;
+
+            resultado.add(Cupom.builder()
+                    .codigoCupom(codigo)
                     .tipoDesconto(cupomRecebido.getTipoDesconto())
                     .valor(cupomRecebido.getValor())
                     .url(cupomRecebido.getUrl())
+                    .status(status)
                     .produto(produto)
                     .build());
         }
 
-        return cupoms;
+        return resultado;
     }
 
     public void editarCupom(List<Cupom> novosCupons, Produto produto) {
