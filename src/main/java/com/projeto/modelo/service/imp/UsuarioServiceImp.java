@@ -144,6 +144,7 @@ public class UsuarioServiceImp implements UsuarioService {
 
         usuarioASerDeletado.setStatus(UsuarioStatus.INATIVO);
         usuarioASerDeletado.setDataDelecao(LocalDateTime.now());
+        usuarioRepository.save(usuarioASerDeletado);
     }
 
     @Override
