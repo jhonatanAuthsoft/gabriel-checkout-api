@@ -25,6 +25,7 @@ public class UsuarioMapper {
                 .cpf(usuario.getCpf())
                 .endereco(usuario.getEndereco())
                 .permissao(usuario.getPermissao().toString())
+                .status(usuario.getStatus())
                 .dataCriacao(usuario.getDataCriacao())
                 .dataAtualizacao(usuario.getDataAtualizacao())
                 .build();
@@ -38,7 +39,7 @@ public class UsuarioMapper {
                     .celular(dto.celular())
                     .cpf(dto.cpf())
                     .endereco(dto.endereco())
-                    .status(UsuarioStatus.ATIVO)
+                    .status(dto.status())
                     .permissao(dto.permissao())
                     .senha(senhaGerada)
                     .build();
@@ -56,7 +57,7 @@ public class UsuarioMapper {
                     .celular(dto.celular())
                     .cpf(dto.cpf())
                     .endereco(dto.endereco())
-                    .status(UsuarioStatus.ATIVO)
+                    .status(dto.status())
                     .permissao(PermissaoStatus.CLIENTE)
                     .senha(senhaGerada)
                     .build();
@@ -93,6 +94,7 @@ public class UsuarioMapper {
                     usuario.setEmail(dto.email());
                     usuario.setCpf(dto.cpf());
                     usuario.setCelular(dto.celular());
+                    usuario.setStatus(dto.status());
                     usuario.setEndereco(dto.endereco());
                     usuario.setPermissao(permissao);
                 } else if (isUsuarioMesmo) {
@@ -100,12 +102,14 @@ public class UsuarioMapper {
                     usuario.setEmail(dto.email());
                     usuario.setCpf(dto.cpf());
                     usuario.setCelular(dto.celular());
+                    usuario.setStatus(dto.status());
                     usuario.setEndereco(dto.endereco());
                 }
             } else if (isUsuarioMesmo) {
                 usuario.setNome(dto.nome());
                 usuario.setEmail(dto.email());
                 usuario.setCpf(dto.cpf());
+                usuario.setStatus(dto.status());
                 usuario.setCelular(dto.celular());
                 usuario.setEndereco(dto.endereco());
             }
@@ -115,6 +119,7 @@ public class UsuarioMapper {
             usuario.setCpf(dto.cpf());
             usuario.setCelular(dto.celular());
             usuario.setEndereco(dto.endereco());
+            usuario.setStatus(dto.status());
             usuario.setPermissao(PermissaoStatus.CLIENTE);
         }
     }
