@@ -32,6 +32,8 @@ public class UsuarioMapper {
     }
 
     public Usuario toEntity(CadastraUsuarioDTO dto, String senhaGerada, Usuario usuario) {
+        UsuarioStatus status = dto.status().toString() == null ? UsuarioStatus.ATIVO : dto.status();
+
         if (usuario != null && usuario.getPermissao() == PermissaoStatus.ADMIN) {
             return Usuario.builder()
                     .nome(dto.nome())
@@ -39,7 +41,7 @@ public class UsuarioMapper {
                     .celular(dto.celular())
                     .cpf(dto.cpf())
                     .endereco(dto.endereco())
-                    .status(dto.status())
+                    .status(status)
                     .permissao(dto.permissao())
                     .senha(senhaGerada)
                     .build();
@@ -57,7 +59,7 @@ public class UsuarioMapper {
                     .celular(dto.celular())
                     .cpf(dto.cpf())
                     .endereco(dto.endereco())
-                    .status(dto.status())
+                    .status(status)
                     .permissao(PermissaoStatus.CLIENTE)
                     .senha(senhaGerada)
                     .build();
@@ -83,6 +85,8 @@ public class UsuarioMapper {
     }
 
     public void editarUsuario(Usuario usuarioRequerente, Usuario usuario, CadastraUsuarioDTO dto) {
+        UsuarioStatus status = dto.status().toString() == null ? UsuarioStatus.ATIVO : dto.status();
+
         if (usuarioRequerente != null) {
             boolean isAdmin = usuarioRequerente.getPermissao() == PermissaoStatus.ADMIN;
             boolean isUsuarioMesmo = usuarioRequerente.getId().equals(usuario.getId());
@@ -94,7 +98,7 @@ public class UsuarioMapper {
                     usuario.setEmail(dto.email());
                     usuario.setCpf(dto.cpf());
                     usuario.setCelular(dto.celular());
-                    usuario.setStatus(dto.status());
+                    usuario.setStatus(status);
                     usuario.setEndereco(dto.endereco());
                     usuario.setPermissao(permissao);
                 } else if (isUsuarioMesmo) {
@@ -102,14 +106,14 @@ public class UsuarioMapper {
                     usuario.setEmail(dto.email());
                     usuario.setCpf(dto.cpf());
                     usuario.setCelular(dto.celular());
-                    usuario.setStatus(dto.status());
+                    usuario.setStatus(status);
                     usuario.setEndereco(dto.endereco());
                 }
             } else if (isUsuarioMesmo) {
                 usuario.setNome(dto.nome());
                 usuario.setEmail(dto.email());
                 usuario.setCpf(dto.cpf());
-                usuario.setStatus(dto.status());
+                usuario.setStatus(status);
                 usuario.setCelular(dto.celular());
                 usuario.setEndereco(dto.endereco());
             }
@@ -119,7 +123,7 @@ public class UsuarioMapper {
             usuario.setCpf(dto.cpf());
             usuario.setCelular(dto.celular());
             usuario.setEndereco(dto.endereco());
-            usuario.setStatus(dto.status());
+            usuario.setStatus(status);
             usuario.setPermissao(PermissaoStatus.CLIENTE);
         }
     }
