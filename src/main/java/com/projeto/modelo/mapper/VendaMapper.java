@@ -9,6 +9,7 @@ import com.projeto.modelo.model.entity.*;
 import com.projeto.modelo.model.enums.*;
 import com.projeto.modelo.repository.ProdutoRepository;
 import com.projeto.modelo.repository.UsuarioRepository;
+import com.projeto.modelo.repository.VendaRepository;
 import com.projeto.modelo.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,11 +29,21 @@ public class VendaMapper {
     @Autowired
     private ProdutoRepository produtoRepository;
 
+    @Autowired
+    private VendaRepository vendaRepository;
+
     public Venda toEntity(CriarVendaRequestDTO dto, Boolean primeiraVenda) {
         Cupom cupom = null;
         Usuario vendedor = null;
 
         Produto produto = produtoRepository.findById(dto.idProduto()).orElseThrow(() -> new ExcecoesCustomizada("Produto não encontrado", HttpStatus.NOT_FOUND));
+
+        Long totalVendas = vendaRepository.contarVendasPorProduto(produto.getId());
+
+        if (produto.getDadosProduto().disponibilidade().quantidadeMaxima() != null && produto.getDadosProduto().disponibilidade().quantidadeMaxima() < totalVendas) {
+            throw new ExcecoesCustomizada("Quantidade Máxima já vendida!", HttpStatus.BAD_REQUEST);
+        }
+
         Plano plano = produto.getPlanos().stream()
                 .filter(p -> p.getId().equals(dto.idPlano()))
                 .findFirst()

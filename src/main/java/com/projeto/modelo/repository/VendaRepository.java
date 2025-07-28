@@ -79,4 +79,7 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
 
     @Query(value = "SELECT * FROM vendas WHERE status_venda = 'CANCELADO' AND data_pagamento >= :dataInicio AND data_pagamento <= :dataFim ORDER BY id_cliente, data_pagamento", nativeQuery = true)
     List<Venda> findVendasCanceladas(@Param("dataInicio") LocalDateTime dataInicio, @Param("dataFim") LocalDateTime dataFim);
+
+    @Query(value = "SELECT COUNT(v) FROM vendas v WHERE produto_id = :idProduto", nativeQuery = true)
+    Long contarVendasPorProduto(@Param("idProduto") Long idProduto);
 }
