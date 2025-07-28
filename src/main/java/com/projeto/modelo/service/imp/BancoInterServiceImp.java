@@ -202,7 +202,7 @@ public class BancoInterServiceImp implements BancoInterService {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            this.validaRetornoInter(response);
+            //this.validaRetornoInter(response);
             ObjectMapper objectMapper = new ObjectMapper();
             BancoInterWebhookResponseDTO webhookPixResponse = objectMapper.readValue(response.body(), BancoInterWebhookResponseDTO.class);
 
@@ -537,7 +537,7 @@ public class BancoInterServiceImp implements BancoInterService {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            this.validaRetornoInter(response);
+            //this.validaRetornoInter(response);
             ObjectMapper objectMapper = new ObjectMapper();
             BancoInterWebhookResponseDTO webhookPixResponse = objectMapper.readValue(response.body(), BancoInterWebhookResponseDTO.class);
 
