@@ -102,8 +102,8 @@ public class PagamentoServiceImp implements PagamentoService {
         return assinaturaService.criarAssinatura(dto);
     }
 
-    private void gerarBoletoEPagamento(Venda venda) {
-        BancoInterCodigoBoletoResponseDTO responseBoleto = bancoInterService.gerarBoleto(BancoInterBoletoRequestDTO.builder()
+    private BancoInterCodigoBoletoResponseDTO gerarBoletoEPagamento(Venda venda) {
+        return bancoInterService.gerarBoleto(BancoInterBoletoRequestDTO.builder()
                 .valorPagamento(venda.getValorPago())
                 .dataVencimento(LocalDate.now().plusDays(DIAS_VENCIMENTO_BOLETO))
                 .pagador(BancoInterPagadorBoletoRequestDTO.builder()
@@ -153,12 +153,8 @@ public class PagamentoServiceImp implements PagamentoService {
                     .webhookUrl(baseUrl + "pagamento/callback/pix")
                     .build());
         } else if (tipoWebhook.equals(MetodoPagamento.BOLETO)) {
-            bancoInterService.cadastraWebhookPix(BancoInterWebhookRequestDTO.builder()
+            bancoInterService.cadastraWebhookBoleto(BancoInterWebhookRequestDTO.builder()
                     .webhookUrl(baseUrl + "pagamento/callback/boleto")
-                    .build());
-        } else if (tipoWebhook.equals(MetodoPagamento.CARTAO)) {
-            bancoInterService.cadastraWebhookPix(BancoInterWebhookRequestDTO.builder()
-                    .webhookUrl(baseUrl + "pagamento/callback/cartao")
                     .build());
         } else {
             throw new ExcecoesCustomizada("Tipo de Webhook não encontrado!", HttpStatus.BAD_REQUEST);
@@ -197,15 +193,15 @@ public class PagamentoServiceImp implements PagamentoService {
         if (venda.getCodigoSolicitacao() != null) {
             BancoInterBoletoResponseDTO dadosBoleto = bancoInterService.consultaBoleto(venda.getCodigoSolicitacao());
             if (LocalDate.now().isAfter(LocalDate.parse(dadosBoleto.getCobranca().getDataVencimento()))) {
-                this.gerarBoletoEPagamento(venda);
+                BancoInterCodigoBoletoResponseDTO response = this.gerarBoletoEPagamento(venda);
                 vendaService.gerarPagamento(venda.getId(), AtualizarVendaDTO.builder()
-                        .codigoSolicitacao(venda.getCodigoSolicitacao())
+                        .codigoSolicitacao(response.getCodigoSolicitacao())
                         .build());
             }
         } else {
-            this.gerarBoletoEPagamento(venda);
+            BancoInterCodigoBoletoResponseDTO response = this.gerarBoletoEPagamento(venda);
             vendaService.gerarPagamento(venda.getId(), AtualizarVendaDTO.builder()
-                    .codigoSolicitacao(venda.getCodigoSolicitacao())
+                    .codigoSolicitacao(response.getCodigoSolicitacao())
                     .build());
         }
 
