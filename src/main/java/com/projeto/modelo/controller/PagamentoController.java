@@ -42,8 +42,8 @@ public class PagamentoController {
     }
 
     @PostMapping("/callback/pix")
-    public ResponseEntity<Void> callbackPix(@RequestBody BancoInterCallbackPix pix) {
-        this.pagamentoService.callbackPix(pix);
+    public ResponseEntity<Void> callbackPix(@RequestBody BancoInterCallbackPix payload) {
+        this.pagamentoService.callbackPix(payload);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
