@@ -2,6 +2,7 @@ package com.projeto.modelo.service;
 
 import com.projeto.modelo.controller.dto.request.PagamentoRequestDTO;
 import com.projeto.modelo.controller.dto.request.bancoInter.boleto.BancoInterCallbackBoletoDTO;
+import com.projeto.modelo.controller.dto.request.bancoInter.pix.calback.BancoInterCallbackPix;
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.calback.BancoInterCallbackPixDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.BancoInterWebhookResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterBoletoPDFResponseDTO;
@@ -24,7 +25,7 @@ public interface PagamentoService {
 
     Boolean pagarComCartao(PagamentoRequestDTO dt);
 
-    void callbackPix(List<BancoInterCallbackPixDTO> bancoInterCallbackPixDTO);
+    void callbackPix(BancoInterCallbackPix bancoInterCallbackPixDTO);
 
     void callbackBoleto(List<BancoInterCallbackBoletoDTO> bancoInterCallbackBoleto);
 

@@ -9,6 +9,7 @@ import com.projeto.modelo.controller.dto.request.bancoInter.boleto.BancoInterCal
 import com.projeto.modelo.controller.dto.request.bancoInter.boleto.BancoInterPagadorBoletoRequestDTO;
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.BancoInterPixRequestDTO;
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.BancoInterWebhookRequestDTO;
+import com.projeto.modelo.controller.dto.request.bancoInter.pix.calback.BancoInterCallbackPix;
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.calback.BancoInterCallbackPixDTO;
 import com.projeto.modelo.controller.dto.request.cielo.*;
 import com.projeto.modelo.controller.dto.response.AssinaturaResponseDTO;
@@ -276,8 +277,8 @@ public class PagamentoServiceImp implements PagamentoService {
     }
 
     @Override
-    public void callbackPix(List<BancoInterCallbackPixDTO> bancoInterCallbackPixDTO) {
-        for (BancoInterCallbackPixDTO dto : bancoInterCallbackPixDTO) {
+    public void callbackPix(BancoInterCallbackPix bancoInterCallbackPixDTO) {
+        for (BancoInterCallbackPixDTO dto : bancoInterCallbackPixDTO.getPix()) {
             vendaService.confirmarPagamento(dto.txid(), StatusPagamento.APROVADO, StatusVenda.FINALIZADO, dto.horario().toLocalDateTime());
             Venda venda = vendaRepository.buscarPorVerificador(dto.txid()).orElseThrow(() -> new ExcecoesCustomizada("Venda não encontrada!", HttpStatus.NOT_FOUND));
             this.criarAssinatura(AssinaturaRequestDTO.builder()

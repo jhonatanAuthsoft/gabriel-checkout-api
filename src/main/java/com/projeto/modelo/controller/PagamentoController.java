@@ -2,6 +2,7 @@ package com.projeto.modelo.controller;
 
 import com.projeto.modelo.controller.dto.request.PagamentoRequestDTO;
 import com.projeto.modelo.controller.dto.request.bancoInter.boleto.BancoInterCallbackBoletoDTO;
+import com.projeto.modelo.controller.dto.request.bancoInter.pix.calback.BancoInterCallbackPix;
 import com.projeto.modelo.controller.dto.request.bancoInter.pix.calback.BancoInterCallbackPixDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterBoletoPDFResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.pix.BancoInterPixResponseDTO;
@@ -41,7 +42,7 @@ public class PagamentoController {
     }
 
     @PostMapping("/callback/pix")
-    public ResponseEntity<Void> callbackPix(@RequestBody List<BancoInterCallbackPixDTO> pix) {
+    public ResponseEntity<Void> callbackPix(@RequestBody BancoInterCallbackPix pix) {
         this.pagamentoService.callbackPix(pix);
         return new ResponseEntity<>(HttpStatus.OK);
     }
