@@ -41,14 +41,14 @@ public class PagamentoController {
     }
 
     @PostMapping("/callback/pix")
-    public ResponseEntity<Void> callbackPix(@RequestBody List<BancoInterCallbackPixDTO> bancoInterCallbackPixDTO) {
-        this.pagamentoService.callbackPix(bancoInterCallbackPixDTO);
+    public ResponseEntity<Void> callbackPix(@RequestBody List<BancoInterCallbackPixDTO> pix) {
+        this.pagamentoService.callbackPix(pix);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/callback/boleto")
-    public ResponseEntity<Void> callbackBoleto(@RequestBody List<BancoInterCallbackBoletoDTO> bancoInterCallbackBoleto) {
-        this.pagamentoService.callbackBoleto(bancoInterCallbackBoleto);
+    public ResponseEntity<Void> callbackBoleto(@RequestBody List<BancoInterCallbackBoletoDTO> boleto) {
+        this.pagamentoService.callbackBoleto(boleto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
