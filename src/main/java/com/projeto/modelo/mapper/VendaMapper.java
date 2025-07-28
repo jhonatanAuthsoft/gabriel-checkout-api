@@ -40,7 +40,7 @@ public class VendaMapper {
 
         Long totalVendas = vendaRepository.contarVendasPorProduto(produto.getId());
 
-        if (produto.getDadosProduto().disponibilidade().quantidadeMaxima() != null && produto.getDadosProduto().disponibilidade().quantidadeMaxima() < totalVendas) {
+        if (produto.getDadosProduto().disponibilidade().quantidadeMaxima() != null && totalVendas >= produto.getDadosProduto().disponibilidade().quantidadeMaxima()) {
             throw new ExcecoesCustomizada("Quantidade Máxima já vendida!", HttpStatus.BAD_REQUEST);
         }
 
