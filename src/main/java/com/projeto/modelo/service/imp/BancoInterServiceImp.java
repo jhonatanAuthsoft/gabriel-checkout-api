@@ -614,6 +614,9 @@ public class BancoInterServiceImp implements BancoInterService {
 
             // Enviar requisição
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            log.info("responsta requisição: {}", response);
+
             if (response.statusCode() == HttpStatus.OK.value()) {
                 // Mapeando o JSON para o objeto
                 ObjectMapper objectMapper = new ObjectMapper();
