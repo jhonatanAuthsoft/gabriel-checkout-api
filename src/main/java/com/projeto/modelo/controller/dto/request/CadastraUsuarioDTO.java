@@ -5,10 +5,11 @@ import com.projeto.modelo.model.entity.Endereco;
 import com.projeto.modelo.model.enums.PermissaoStatus;
 import com.projeto.modelo.model.enums.UsuarioStatus;
 import com.projeto.modelo.util.StringUtils;
+import jakarta.validation.constraints.Email;
 import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.http.HttpStatus;
 
-public record CadastraUsuarioDTO(String email, String nome, @CPF String cpf, String celular, PermissaoStatus permissao,
+public record CadastraUsuarioDTO(@Email String email, String nome, @CPF String cpf, String celular, PermissaoStatus permissao,
                                  Endereco endereco, UsuarioStatus status) {
     public CadastraUsuarioDTO {
         if (StringUtils.isNullOrEmpty(email)) {
