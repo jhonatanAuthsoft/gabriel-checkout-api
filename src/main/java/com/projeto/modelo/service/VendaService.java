@@ -16,7 +16,7 @@ public interface VendaService {
 
     Page<VendaResponseDTO> listarTodasVendas(String token, int size, int page);
 
-    VendaResponseDTO listarVendaPorId(String token, Long id);
+    VendaResponseDTO listarVendaPorId(Long id);
 
     VendaResponseDTO atualizarPedidoAdmin(Long idVenda, AtualizarPedidoAdmin dto);
 

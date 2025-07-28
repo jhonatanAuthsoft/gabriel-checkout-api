@@ -32,8 +32,8 @@ public class VendaController {
     }
 
     @GetMapping("/listar-id/{idVenda}")
-    public ResponseEntity<VendaResponseDTO> listarVendaPorId(@RequestHeader(value = "Authorization") String token, @PathVariable Long idVenda) {
-        return new ResponseEntity<>(vendaService.listarVendaPorId(token, idVenda), HttpStatus.OK);
+    public ResponseEntity<VendaResponseDTO> listarVendaPorId(@PathVariable Long idVenda) {
+        return new ResponseEntity<>(vendaService.listarVendaPorId(idVenda), HttpStatus.OK);
     }
 
     @PatchMapping("/solicitar-reembolso/{idVenda}")

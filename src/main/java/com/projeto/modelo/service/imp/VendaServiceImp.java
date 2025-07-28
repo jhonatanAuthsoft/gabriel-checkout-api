@@ -67,13 +67,13 @@ public class VendaServiceImp implements VendaService {
     }
 
     @Override
-    public VendaResponseDTO listarVendaPorId(String token, Long id) {
+    public VendaResponseDTO listarVendaPorId(Long id) {
         Venda venda = vendaRepository.findById(id).orElseThrow(() -> new ExcecoesCustomizada("Venda não encontrada!", HttpStatus.NOT_FOUND));
-        Usuario usuarioSolicitante = usuarioRepository.findByEmail(jwtUtil.extractUsername(token.substring(7))).orElseThrow(() -> new ExcecoesCustomizada("Usuário não encontrado!", HttpStatus.NOT_FOUND));
+//        Usuario usuarioSolicitante = usuarioRepository.findByEmail(jwtUtil.extractUsername(token.substring(7))).orElseThrow(() -> new ExcecoesCustomizada("Usuário não encontrado!", HttpStatus.NOT_FOUND));
 
-        if (usuarioSolicitante.getPermissao().equals(PermissaoStatus.CLIENTE) && !usuarioSolicitante.getId().equals(venda.getCliente().getId())) {
-            throw new ExcecoesCustomizada("Você não tem permissão pra ver esse registro", HttpStatus.UNAUTHORIZED);
-        }
+//        if (usuarioSolicitante.getPermissao().equals(PermissaoStatus.CLIENTE) && !usuarioSolicitante.getId().equals(venda.getCliente().getId())) {
+//            throw new ExcecoesCustomizada("Você não tem permissão pra ver esse registro", HttpStatus.UNAUTHORIZED);
+//        }
 
         return vendaMapper.toResponseDTO(venda);
     }
