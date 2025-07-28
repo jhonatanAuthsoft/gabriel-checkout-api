@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 "/usuario/esqueceu-senha",
                                 "/usuario/validar-troca-senha",
                                 "/venda/criar",
+                                "/venda/listar-id/**",
                                 "/produto/listar-por-id/**",
                                 "/pagamento/**",
                                 "/v3/api-docs/**",
