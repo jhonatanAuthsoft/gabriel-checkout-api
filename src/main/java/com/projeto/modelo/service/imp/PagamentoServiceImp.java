@@ -92,7 +92,7 @@ public class PagamentoServiceImp implements PagamentoService {
 
     private void validarCallback(MetodoPagamento metodoPagamento) {
         BancoInterWebhookResponseDTO webhook = consultarWebhooks(metodoPagamento);
-        if (webhook == null) {
+        if (webhook.getWebhookUrl() == null) {
             this.cadastrarWebhooks(metodoPagamento, this.getBaseWebhookUrl());
         }
     }
