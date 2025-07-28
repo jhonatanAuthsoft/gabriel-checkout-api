@@ -9,10 +9,7 @@ import com.projeto.modelo.service.PagamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,6 +28,11 @@ public class PagamentoController {
     @PostMapping("/boleto")
     public ResponseEntity<BancoInterBoletoPDFResponseDTO> pagarBoleto(@RequestBody PagamentoRequestDTO pagamentoRequestDTO) {
         return new ResponseEntity<>(this.pagamentoService.pagarComBoleto(pagamentoRequestDTO), HttpStatus.OK);
+    }
+
+    @PostMapping("/buscar-boleto/{codigoSolicitacao}")
+    public ResponseEntity<BancoInterBoletoPDFResponseDTO> pagarBoleto(@PathVariable String codigoSolicitacao) {
+        return new ResponseEntity<>(this.pagamentoService.buscarBoleto(codigoSolicitacao), HttpStatus.OK);
     }
 
     @PostMapping("/cartao")
