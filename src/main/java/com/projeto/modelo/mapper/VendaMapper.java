@@ -38,6 +38,10 @@ public class VendaMapper {
                 .findFirst()
                 .orElseThrow(() -> new ExcecoesCustomizada("Plano não encontrado!", HttpStatus.BAD_REQUEST));
 
+        if (!plano.getStatus().equals(ProdutoStatus.ATIVO)) {
+            throw new ExcecoesCustomizada("O Plano não está ativo!", HttpStatus.BAD_REQUEST);
+        }
+
         BigDecimal valorPago = plano.getPreco();
 
         OrigemCompra origemCompra = primeiraVenda ? OrigemCompra.PRIMEIRA_COMPRA : OrigemCompra.RECORRENCIA;
