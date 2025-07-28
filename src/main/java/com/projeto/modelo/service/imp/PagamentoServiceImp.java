@@ -171,31 +171,37 @@ public class PagamentoServiceImp implements PagamentoService {
         Usuario cliente = venda.getCliente();
 
         this.validarStatusPagamentoEVenda(venda.getStatusPagamento(), venda.getStatusVenda());
+        if (venda.getCodigoSolicitacao() == null) {
+            BancoInterCodigoBoletoResponseDTO responseBoleto = bancoInterService.gerarBoleto(BancoInterBoletoRequestDTO.builder()
+                    .valorPagamento(venda.getValorPago())
+                    .dataVencimento(LocalDate.now().plusDays(DIAS_VENCIMENTO_BOLETO))
+                    .pagador(BancoInterPagadorBoletoRequestDTO.builder()
+                            .email(cliente.getEmail())
+                            .ddd(cliente.getCelular().substring(0, 2))
+                            .telefone(cliente.getCelular().substring(2))
+                            .numeroResidencia(cliente.getEndereco().numeroResidencia())
+                            .complementoEndereco(cliente.getEndereco().complementoEndereco())
+                            .cpfCnpj(cliente.getCpf())
+                            .nome(cliente.getNome())
+                            .endereco(cliente.getEndereco().endereco())
+                            .bairro(cliente.getEndereco().bairro())
+                            .cidade(cliente.getEndereco().cidade())
+                            .uf(cliente.getEndereco().uf())
+                            .cep(cliente.getEndereco().cep())
+                            .build())
+                    .build());
 
-        BancoInterCodigoBoletoResponseDTO responseBoleto = bancoInterService.gerarBoleto(BancoInterBoletoRequestDTO.builder()
-                .valorPagamento(venda.getValorPago())
-                .dataVencimento(LocalDate.now().plusDays(DIAS_VENCIMENTO_BOLETO))
-                .pagador(BancoInterPagadorBoletoRequestDTO.builder()
-                        .email(cliente.getEmail())
-                        .ddd(cliente.getCelular().substring(0, 2))
-                        .telefone(cliente.getCelular().substring(2))
-                        .numeroResidencia(cliente.getEndereco().numeroResidencia())
-                        .complementoEndereco(cliente.getEndereco().complementoEndereco())
-                        .cpfCnpj(cliente.getCpf())
-                        .nome(cliente.getNome())
-                        .endereco(cliente.getEndereco().endereco())
-                        .bairro(cliente.getEndereco().bairro())
-                        .cidade(cliente.getEndereco().cidade())
-                        .uf(cliente.getEndereco().uf())
-                        .cep(cliente.getEndereco().cep())
-                        .build())
-                .build());
+            vendaService.gerarPagamento(dto.idVenda(), AtualizarVendaDTO.builder()
+                    .codigoSolicitacao(responseBoleto.getCodigoSolicitacao())
+                    .build());
+        }
 
-        vendaService.gerarPagamento(dto.idVenda(), AtualizarVendaDTO.builder()
-                .codigoSolicitacao(responseBoleto.getCodigoSolicitacao())
-                .build());
+        return bancoInterService.consultarBoletoPdf(venda.getCodigoSolicitacao());
+    }
 
-        return bancoInterService.consultarBoletoPdf(responseBoleto.getCodigoSolicitacao());
+    @Override
+    public BancoInterBoletoPDFResponseDTO buscarBoleto(String codigoSolicitacao) {
+        return bancoInterService.consultarBoletoPdf(codigoSolicitacao);
     }
 
     @Override

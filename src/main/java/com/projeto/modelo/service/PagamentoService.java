@@ -20,6 +20,8 @@ public interface PagamentoService {
 
     BancoInterBoletoPDFResponseDTO pagarComBoleto(PagamentoRequestDTO dto);
 
+    BancoInterBoletoPDFResponseDTO buscarBoleto(String codigoSolicitacao);
+
     Boolean pagarComCartao(PagamentoRequestDTO dt);
 
     void callbackPix(List<BancoInterCallbackPixDTO> bancoInterCallbackPixDTO);
