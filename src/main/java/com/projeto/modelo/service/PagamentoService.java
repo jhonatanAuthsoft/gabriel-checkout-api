@@ -18,7 +18,7 @@ public interface PagamentoService {
 
     BancoInterPixResponseDTO pagarComPix(PagamentoRequestDTO dto);
 
-    BancoInterBoletoPDFResponseDTO pagarComBoleto(PagamentoRequestDTO dto);
+    BancoInterBoletoPDFResponseDTO pagarComBoleto(PagamentoRequestDTO dto) throws InterruptedException;
 
     BancoInterBoletoPDFResponseDTO buscarBoleto(String codigoSolicitacao);
 

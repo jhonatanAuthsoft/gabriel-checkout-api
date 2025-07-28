@@ -14,6 +14,7 @@ import com.projeto.modelo.controller.dto.request.cielo.*;
 import com.projeto.modelo.controller.dto.response.AssinaturaResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.BancoInterWebhookResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterBoletoPDFResponseDTO;
+import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterBoletoResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterCodigoBoletoResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.pix.BancoInterPixResponseDTO;
 import com.projeto.modelo.controller.dto.response.cielo.CieloResponse;
@@ -100,6 +101,27 @@ public class PagamentoServiceImp implements PagamentoService {
         return assinaturaService.criarAssinatura(dto);
     }
 
+    private void gerarBoletoEPagamento(Venda venda) {
+        BancoInterCodigoBoletoResponseDTO responseBoleto = bancoInterService.gerarBoleto(BancoInterBoletoRequestDTO.builder()
+                .valorPagamento(venda.getValorPago())
+                .dataVencimento(LocalDate.now().plusDays(DIAS_VENCIMENTO_BOLETO))
+                .pagador(BancoInterPagadorBoletoRequestDTO.builder()
+                        .email(venda.getCliente().getEmail())
+                        .ddd(venda.getCliente().getCelular().substring(0, 2))
+                        .telefone(venda.getCliente().getCelular().substring(2))
+                        .numeroResidencia(venda.getCliente().getEndereco().numeroResidencia())
+                        .complementoEndereco(venda.getCliente().getEndereco().complementoEndereco())
+                        .cpfCnpj(venda.getCliente().getCpf())
+                        .nome(venda.getCliente().getNome())
+                        .endereco(venda.getCliente().getEndereco().endereco())
+                        .bairro(venda.getCliente().getEndereco().bairro())
+                        .cidade(venda.getCliente().getEndereco().cidade())
+                        .uf(venda.getCliente().getEndereco().uf())
+                        .cep(venda.getCliente().getEndereco().cep())
+                        .build())
+                .build());
+    }
+
     private void validarStatusPagamentoEVenda(StatusPagamento statusPagamento, StatusVenda statusVenda) {
         if ((statusPagamento != null && statusPagamento.equals(StatusPagamento.APROVADO)) && (statusVenda != null && statusVenda.equals(StatusVenda.FINALIZADO))) {
             throw new ExcecoesCustomizada("Esse pedido já foi pago e finalizado!", HttpStatus.BAD_REQUEST);
@@ -164,38 +186,29 @@ public class PagamentoServiceImp implements PagamentoService {
     }
 
     @Override
-    public BancoInterBoletoPDFResponseDTO pagarComBoleto(PagamentoRequestDTO dto) {
+    public BancoInterBoletoPDFResponseDTO pagarComBoleto(PagamentoRequestDTO dto) throws InterruptedException {
         this.validarCallback(dto.tipoCobranca());
 
         Venda venda = vendaRepository.findById(dto.idVenda()).orElseThrow(() -> new ExcecoesCustomizada("Venda não Encontrada!", HttpStatus.NOT_FOUND));
-        Usuario cliente = venda.getCliente();
 
         this.validarStatusPagamentoEVenda(venda.getStatusPagamento(), venda.getStatusVenda());
-        if (venda.getCodigoSolicitacao() == null) {
-            BancoInterCodigoBoletoResponseDTO responseBoleto = bancoInterService.gerarBoleto(BancoInterBoletoRequestDTO.builder()
-                    .valorPagamento(venda.getValorPago())
-                    .dataVencimento(LocalDate.now().plusDays(DIAS_VENCIMENTO_BOLETO))
-                    .pagador(BancoInterPagadorBoletoRequestDTO.builder()
-                            .email(cliente.getEmail())
-                            .ddd(cliente.getCelular().substring(0, 2))
-                            .telefone(cliente.getCelular().substring(2))
-                            .numeroResidencia(cliente.getEndereco().numeroResidencia())
-                            .complementoEndereco(cliente.getEndereco().complementoEndereco())
-                            .cpfCnpj(cliente.getCpf())
-                            .nome(cliente.getNome())
-                            .endereco(cliente.getEndereco().endereco())
-                            .bairro(cliente.getEndereco().bairro())
-                            .cidade(cliente.getEndereco().cidade())
-                            .uf(cliente.getEndereco().uf())
-                            .cep(cliente.getEndereco().cep())
-                            .build())
-                    .build());
 
-            vendaService.gerarPagamento(dto.idVenda(), AtualizarVendaDTO.builder()
-                    .codigoSolicitacao(responseBoleto.getCodigoSolicitacao())
+        if (venda.getCodigoSolicitacao() != null) {
+            BancoInterBoletoResponseDTO dadosBoleto = bancoInterService.consultaBoleto(venda.getCodigoSolicitacao());
+            if (LocalDate.now().isAfter(LocalDate.parse(dadosBoleto.getCobranca().getDataVencimento()))) {
+                this.gerarBoletoEPagamento(venda);
+                vendaService.gerarPagamento(venda.getId(), AtualizarVendaDTO.builder()
+                        .codigoSolicitacao(venda.getCodigoSolicitacao())
+                        .build());
+            }
+        } else {
+            this.gerarBoletoEPagamento(venda);
+            vendaService.gerarPagamento(venda.getId(), AtualizarVendaDTO.builder()
+                    .codigoSolicitacao(venda.getCodigoSolicitacao())
                     .build());
         }
 
+        Thread.sleep(1000);
         return bancoInterService.consultarBoletoPdf(venda.getCodigoSolicitacao());
     }
 

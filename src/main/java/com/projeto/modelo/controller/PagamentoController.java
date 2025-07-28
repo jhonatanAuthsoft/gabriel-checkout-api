@@ -26,7 +26,7 @@ public class PagamentoController {
     }
 
     @PostMapping("/boleto")
-    public ResponseEntity<BancoInterBoletoPDFResponseDTO> pagarBoleto(@RequestBody PagamentoRequestDTO pagamentoRequestDTO) {
+    public ResponseEntity<BancoInterBoletoPDFResponseDTO> pagarBoleto(@RequestBody PagamentoRequestDTO pagamentoRequestDTO) throws InterruptedException {
         return new ResponseEntity<>(this.pagamentoService.pagarComBoleto(pagamentoRequestDTO), HttpStatus.OK);
     }
 
