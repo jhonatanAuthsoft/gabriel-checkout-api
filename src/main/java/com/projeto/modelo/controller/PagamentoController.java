@@ -7,13 +7,16 @@ import com.projeto.modelo.controller.dto.request.bancoInter.pix.calback.BancoInt
 import com.projeto.modelo.controller.dto.response.bancoInter.boleto.BancoInterBoletoPDFResponseDTO;
 import com.projeto.modelo.controller.dto.response.bancoInter.pix.BancoInterPixResponseDTO;
 import com.projeto.modelo.service.PagamentoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/pagamento")
 public class PagamentoController {
@@ -42,8 +45,9 @@ public class PagamentoController {
     }
 
     @PostMapping("/callback/pix")
-    public ResponseEntity<Void> callbackPix(@RequestBody BancoInterCallbackPix payload) {
-        this.pagamentoService.callbackPix(payload);
+    public ResponseEntity<Void> callbackPix(@RequestBody Map<String, Object> payload) {
+        log.info("payload recebido: {}", payload);
+        //this.pagamentoService.callbackPix(payload);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
