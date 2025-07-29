@@ -47,5 +47,5 @@ public class Produto {
     private LocalDateTime dataAtualizacao;
 
     @Enumerated(EnumType.STRING)
-    private ProdutoStatus status = ProdutoStatus.ATIVO;
+    private ProdutoStatus status;
 }

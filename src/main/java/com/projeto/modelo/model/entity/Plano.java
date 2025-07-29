@@ -37,5 +37,5 @@ public class Plano {
     private Produto produto;
 
     @Enumerated(EnumType.STRING)
-    private ProdutoStatus status = ProdutoStatus.ATIVO;
+    private ProdutoStatus status;
 }

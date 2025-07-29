@@ -74,8 +74,9 @@ public class ProdutoMapper {
     }
 
     public Produto toEntity(CadastrarProdutoDTO dto) throws IOException {
+        ProdutoStatus status = dto.dados().getStatus() == null ? ProdutoStatus.ATIVO : dto.dados().getStatus();
         Produto produto = Produto.builder()
-                .status(ProdutoStatus.ATIVO)
+                .status(status)
                 .dadosProduto(DadosProduto.builder()
                         .dadosGerais(DadosGerais.builder()
                                 .codigo(dto.dados().getDadosProduto().dadosGerais().codigo())
