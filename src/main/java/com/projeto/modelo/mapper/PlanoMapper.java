@@ -47,6 +47,9 @@ public class PlanoMapper {
         Set<Long> idsDto = new HashSet<>();
 
         for (Plano dto : novos) {
+            ProdutoStatus status = dto.getStatus() != null
+                    ? dto.getStatus()
+                    : ProdutoStatus.ATIVO;
             if (dto.getId() != null && existentesPorId.containsKey(dto.getId())) {
                 Plano plano = existentesPorId.get(dto.getId());
                 idsDto.add(plano.getId());
@@ -59,6 +62,7 @@ public class PlanoMapper {
                 plano.setPrimeiraParcela(dto.getPrimeiraParcela());
                 plano.setRecorrencia(dto.getRecorrencia());
                 plano.setSku(dto.getSku());
+                plano.setStatus(status);
             } else {
                 Plano novo = new Plano();
                 novo.setProduto(produto);
@@ -70,6 +74,7 @@ public class PlanoMapper {
                 novo.setPrimeiraParcela(dto.getPrimeiraParcela());
                 novo.setRecorrencia(dto.getRecorrencia());
                 novo.setSku(dto.getSku());
+                novo.setStatus(status);
 
                 existentes.add(novo);
             }
