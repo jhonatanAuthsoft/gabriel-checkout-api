@@ -55,6 +55,10 @@ public class CupomMapper {
         Set<Long> idsDto = new HashSet<>();
 
         for (Cupom dto : novosCupons) {
+            ProdutoStatus status = dto.getStatus() != null
+                    ? dto.getStatus()
+                    : ProdutoStatus.ATIVO;
+
             if (dto.getId() != null && existentesPorId.containsKey(dto.getId())) {
                 // Atualiza entidade já gerenciada
                 Cupom cupom = existentesPorId.get(dto.getId());
@@ -64,7 +68,7 @@ public class CupomMapper {
                 cupom.setTipoDesconto(dto.getTipoDesconto());
                 cupom.setValor(dto.getValor());
                 cupom.setUrl(dto.getUrl());
-
+                cupom.setStatus(status);
             } else {
                 // Cria novo cupom
                 Cupom novo = new Cupom();
@@ -73,6 +77,7 @@ public class CupomMapper {
                 novo.setTipoDesconto(dto.getTipoDesconto());
                 novo.setValor(dto.getValor());
                 novo.setUrl(dto.getUrl());
+                novo.setStatus(status);
 
                 existentes.add(novo);
             }

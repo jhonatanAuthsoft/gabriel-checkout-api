@@ -121,8 +121,6 @@ public class ProdutoMapper {
     }
 
     public void editarProduto(Produto produto, CadastrarProdutoDTO dto) {
-        produto.setStatus(ProdutoStatus.ATIVO);
-
         DadosProduto dadosProduto = DadosProduto.builder()
                 .dadosGerais(DadosGerais.builder()
                         .codigo(dto.dados().getDadosProduto().dadosGerais().codigo())
@@ -159,6 +157,9 @@ public class ProdutoMapper {
                 .build();
 
         produto.setDadosProduto(dadosProduto);
+
+        ProdutoStatus status = dto.dados().getStatus() == null ? ProdutoStatus.ATIVO : dto.dados().getStatus();
+        produto.setStatus(status);
 
         checkoutMapper.editarCheckout(produto.getCheckoutProduto(), dto.dados().getCheckoutProduto().getPerguntas());
         planoMapper.editarPlano(dto.dados().getPlanos(), produto);
