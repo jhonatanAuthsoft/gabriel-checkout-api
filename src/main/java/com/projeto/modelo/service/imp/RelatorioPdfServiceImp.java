@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -157,20 +159,20 @@ public class RelatorioPdfServiceImp implements RelatorioPdfService {
         List<Venda> vendas = vendaRepository.findAllById(solicitacao.ids());
         vendas.sort(java.util.Comparator.comparing(Venda::getId));
         // Calcular valor total vendido
-        java.math.BigDecimal valorTotal = vendas.stream()
+        BigDecimal valorTotal = vendas.stream()
                 .filter(v -> v.getValorPago() != null)
                 .map(Venda::getValorPago)
-                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         // Calcular totais
-        java.math.BigDecimal totalFinalizada = vendas.stream()
+        BigDecimal totalFinalizada = vendas.stream()
                 .filter(v -> v.getValorPago() != null && v.getStatusVenda() != null && v.getStatusVenda().name().equals("FINALIZADO"))
                 .map(Venda::getValorPago)
-                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
-        java.math.BigDecimal totalReembolsado = vendas.stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalReembolsado = vendas.stream()
                 .filter(v -> v.getValorPago() != null && v.getStatusPagamento() != null && v.getStatusPagamento().name().equals("REEMBOLSADO"))
                 .map(Venda::getValorPago)
-                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
-        java.math.BigDecimal resultado = totalFinalizada.subtract(totalReembolsado);
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal resultado = totalFinalizada.subtract(totalReembolsado);
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdf = new PdfDocument(writer);
@@ -223,9 +225,14 @@ public class RelatorioPdfServiceImp implements RelatorioPdfService {
         }
     }
 
-    public byte[] gerarRelatorioClientes() {
-        java.util.List<Usuario> clientes = usuarioRepository.findAll().stream()
+    public byte[] gerarRelatorioClientes(LocalDate dataInicial, LocalDate dataFim) {
+        List<Usuario> clientes = usuarioRepository.findAll().stream()
                 .filter(u -> u.getPermissao() != null && u.getPermissao().name().equals("CLIENTE"))
+                .filter(u -> {
+                    LocalDate dataCriacao = u.getDataCriacao().toLocalDate();
+                    return (dataCriacao.isEqual(dataInicial) || dataCriacao.isAfter(dataInicial)) &&
+                           (dataCriacao.isEqual(dataFim) || dataCriacao.isBefore(dataFim));
+                })
                 .toList();
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(baos);
@@ -248,14 +255,14 @@ public class RelatorioPdfServiceImp implements RelatorioPdfService {
             tabela.addHeaderCell(new Cell().add(new Paragraph("Total Comprado").setFontSize(fontSize)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
             tabela.addHeaderCell(new Cell().add(new Paragraph("Total Reembolsado").setFontSize(fontSize)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
             for (Usuario u : clientes) {
-                java.math.BigDecimal totalComprado = vendaRepository.findAll().stream()
+                BigDecimal totalComprado = vendaRepository.findAll().stream()
                         .filter(v -> v.getCliente() != null && v.getCliente().getId().equals(u.getId()) && v.getStatusVenda() != null && v.getValorPago() != null)
                         .map(com.projeto.modelo.model.entity.Venda::getValorPago)
-                        .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
-                java.math.BigDecimal totalReembolsado = vendaRepository.findAll().stream()
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal totalReembolsado = vendaRepository.findAll().stream()
                         .filter(v -> v.getCliente() != null && v.getCliente().getId().equals(u.getId()) && v.getStatusPagamento() != null && v.getStatusPagamento().name().equals("REEMBOLSADO") && v.getValorPago() != null)
                         .map(com.projeto.modelo.model.entity.Venda::getValorPago)
-                        .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
                 tabela.addCell(new Cell().add(new Paragraph(u.getNome() != null ? u.getNome() : "").setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
                 tabela.addCell(new Cell().add(new Paragraph(u.getEmail() != null ? u.getEmail() : "").setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
                 tabela.addCell(new Cell().add(new Paragraph(u.getCelular() != null ? u.getCelular() : "").setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));

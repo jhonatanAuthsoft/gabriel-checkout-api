@@ -30,4 +30,6 @@ public interface UsuarioService {
     Page<UsuarioResponseDTO> listarClientes(int size, int page);
 
     void esqueceuSenha(UsuarioEsqueceuSenhaRequestDTO usuarioEsqueceuSenhaRequestDTO);
+
+    Boolean reenviarSenha(Long idUsuario);
 }

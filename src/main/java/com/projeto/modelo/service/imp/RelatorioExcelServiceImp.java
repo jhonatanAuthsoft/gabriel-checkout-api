@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -226,9 +227,14 @@ public class RelatorioExcelServiceImp implements RelatorioExcelService {
     }
 
     @Override
-    public byte[] gerarRelatorioClientesExcel() {
+    public byte[] gerarRelatorioClientesExcel(LocalDate dataInicial, LocalDate dataFim) {
         List<Usuario> clientes = usuarioRepository.findAll().stream()
                 .filter(u -> u.getPermissao() != null && u.getPermissao().name().equals("CLIENTE"))
+                .filter(u -> {
+                    LocalDate dataCriacao = u.getDataCriacao().toLocalDate();
+                    return (dataCriacao.isEqual(dataInicial) || dataCriacao.isAfter(dataInicial)) &&
+                           (dataCriacao.isEqual(dataFim) || dataCriacao.isBefore(dataFim));
+                })
                 .toList();
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Clientes");

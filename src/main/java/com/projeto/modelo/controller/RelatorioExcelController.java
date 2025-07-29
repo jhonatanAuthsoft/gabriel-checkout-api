@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -24,6 +25,7 @@ public class RelatorioExcelController {
     @Autowired
     private RelatorioExcelServiceImp relatorioExcelServiceImp;
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @GetMapping(value = "/dashboard", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     public ResponseEntity<byte[]> gerarRelatorioDashboardExcel(
             @RequestParam("dataInicial") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
@@ -37,6 +39,7 @@ public class RelatorioExcelController {
         return new ResponseEntity<>(excel, headers, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @PostMapping(value = "/vendas", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     public ResponseEntity<byte[]> gerarRelatorioVendasSelecionadasExcel(@RequestBody RelatorioVendasDTO ids) {
         byte[] excel = relatorioExcelServiceImp.gerarRelatorioVendasSelecionadasExcel(ids);
@@ -46,9 +49,14 @@ public class RelatorioExcelController {
         return new ResponseEntity<>(excel, headers, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @GetMapping(value = "/clientes", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    public ResponseEntity<byte[]> gerarRelatoriosDeClientesExcel() {
-        byte[] excel = relatorioExcelServiceImp.gerarRelatorioClientesExcel();
+    public ResponseEntity<byte[]> gerarRelatoriosDeClientesExcel(@RequestParam(value = "dataInicial", defaultValue = "1999-01-01", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
+                                                                 @RequestParam(value = "dataFim", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
+        if (dataFim == null){
+            dataFim = LocalDate.now();
+        }
+        byte[] excel = relatorioExcelServiceImp.gerarRelatorioClientesExcel(dataInicial, dataFim);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=relatorio-clientes.xlsx");
         headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));

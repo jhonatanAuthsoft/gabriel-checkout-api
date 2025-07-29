@@ -61,6 +61,9 @@ public class RelatorioPdfController {
     @GetMapping(value = "/clientes", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> gerarRelatoriosDeClientes(@RequestParam(value = "dataInicial", defaultValue = "1999-01-01", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
                                                             @RequestParam(value = "dataFim", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
+        if (dataFim == null){
+            dataFim = LocalDate.now();
+        }
         byte[] pdf = relatorioPdfServiceImp.gerarRelatorioClientes(dataInicial, dataFim);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=relatorio-clientes.pdf");
