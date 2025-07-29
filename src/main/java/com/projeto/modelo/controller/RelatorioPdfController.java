@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,6 +29,7 @@ public class RelatorioPdfController {
     @Autowired
     private RelatorioPdfServiceImp relatorioPdfServiceImp;
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @GetMapping(value = "/dashboard", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> gerarRelatorioDashboard(
             @RequestParam("dataInicial") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
@@ -44,6 +46,7 @@ public class RelatorioPdfController {
 
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @PostMapping(value = "/vendas", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> gerarRelatorioVendasSelecionadas(@RequestBody RelatorioVendasDTO ids) {
         byte[] pdf = relatorioPdfServiceImp.gerarRelatorioVendasSelecionadas(ids);
@@ -54,9 +57,11 @@ public class RelatorioPdfController {
         return new ResponseEntity<>(pdf, headers, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @GetMapping(value = "/clientes", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<byte[]> gerarRelatoriosDeClientes() {
-        byte[] pdf = relatorioPdfServiceImp.gerarRelatorioClientes();
+    public ResponseEntity<byte[]> gerarRelatoriosDeClientes(@RequestParam(value = "dataInicial", defaultValue = "1999-01-01", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
+                                                            @RequestParam(value = "dataFim", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
+        byte[] pdf = relatorioPdfServiceImp.gerarRelatorioClientes(dataInicial, dataFim);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=relatorio-clientes.pdf");
         headers.setContentType(MediaType.APPLICATION_PDF);

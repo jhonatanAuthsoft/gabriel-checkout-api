@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +23,7 @@ public class DashboardController {
     @Autowired
     private DashboardService dashboardService;
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @GetMapping
     public ResponseEntity<DashboardResponseDTO> carregarDashboard(
             @RequestParam("dataInicial") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
@@ -30,6 +32,7 @@ public class DashboardController {
         return new ResponseEntity<>(dashboardService.carregarDashboard(dataInicial, dataFim), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @GetMapping("/vendas-periodo")
     public ResponseEntity<TotalVendasPorPeriodoDTO> carregarVendaPeriodo(
             @RequestParam("dataInicial") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
@@ -38,6 +41,7 @@ public class DashboardController {
         return new ResponseEntity<>(dashboardService.carregarVendaPeriodo(dataInicial, dataFim), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @GetMapping("/chargeback")
     public ResponseEntity<ChargebackDTO> carregarChargeback(
             @RequestParam("dataInicial") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,

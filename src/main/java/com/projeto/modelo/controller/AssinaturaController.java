@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,11 +18,13 @@ public class AssinaturaController {
     @Autowired
     private AssinaturaService assinaturaService;
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @PostMapping("/criar")
     public ResponseEntity<AssinaturaResponseDTO> criarAssinatura(@RequestBody @Valid AssinaturaRequestDTO dto) {
         return new ResponseEntity<>(assinaturaService.criarAssinatura(dto), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @PutMapping("/atualizar/{idAssinatura}")
     public ResponseEntity<AssinaturaResponseDTO> atualizarAssinatura(
             @PathVariable Long idAssinatura,
