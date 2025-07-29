@@ -102,7 +102,6 @@ public class UsuarioServiceImp implements UsuarioService {
 
         String senha = this.gerarSenha();
         String senhaCriptografada = this.passwordEncoder.encode(senha);
-
         Usuario usuario = this.usuarioMapper.toEntity(cadastraUsuarioDTO, senhaCriptografada, usuarioRequisitor); //passar aqui o token, caso não venha token, cadastra como cliente independente do que ta vindo no dto
 
         Usuario usuarioSalvo = this.usuarioRepository.save(usuario);
@@ -183,5 +182,27 @@ public class UsuarioServiceImp implements UsuarioService {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    @Override
+    public Boolean reenviarSenha(Long idUsuario) {
+        try {
+            Optional<Usuario> usuarioOptional = this.usuarioRepository.findById(idUsuario);
+            if (usuarioOptional.isPresent()) {
+                String senha = this.gerarSenha();
+                String senhaCriptografada = this.passwordEncoder.encode(senha);
+                usuarioOptional.get().setSenha(senhaCriptografada);
+                this.usuarioRepository.save(usuarioOptional.get());
+
+                this.emailService.cadastraUsuario(usuarioOptional.get().getEmail(), senha);
+
+                return true;
+            } else {
+                throw new ExcecoesCustomizada("Usuário não encontrado!", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
     }
 }
