@@ -19,6 +19,9 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 public class VendaMapper {
@@ -33,46 +36,76 @@ public class VendaMapper {
     private VendaRepository vendaRepository;
 
     public Venda toEntity(CriarVendaRequestDTO dto, Boolean primeiraVenda) {
+        List<Produto> produtos = new ArrayList<>();
+        List<Plano> planos = new ArrayList<>();
         Cupom cupom = null;
         Usuario vendedor = null;
+        BigDecimal valorPago = BigDecimal.ZERO;
 
-        Produto produto = produtoRepository.findById(dto.idProduto()).orElseThrow(() -> new ExcecoesCustomizada("Produto não encontrado", HttpStatus.NOT_FOUND));
-
-        Long totalVendas = vendaRepository.contarVendasPorProduto(produto.getId());
-
-        if (produto.getDadosProduto().disponibilidade().quantidadeMaxima() != null && totalVendas >= produto.getDadosProduto().disponibilidade().quantidadeMaxima()) {
-            throw new ExcecoesCustomizada("Quantidade Máxima já vendida!", HttpStatus.BAD_REQUEST);
+        if (dto.idsProduto() == null || dto.idsProduto().isEmpty()) {
+            throw new ExcecoesCustomizada("A lista de produtos não pode estar vazia!", HttpStatus.BAD_REQUEST);
         }
 
-        Plano plano = produto.getPlanos().stream()
-                .filter(p -> p.getId().equals(dto.idPlano()))
-                .findFirst()
-                .orElseThrow(() -> new ExcecoesCustomizada("Plano não encontrado!", HttpStatus.BAD_REQUEST));
-
-        if (!plano.getStatus().equals(ProdutoStatus.ATIVO)) {
-            throw new ExcecoesCustomizada("O Plano não está ativo!", HttpStatus.BAD_REQUEST);
+        if (dto.idsPlano() == null || dto.idsPlano().isEmpty()) {
+            throw new ExcecoesCustomizada("A lista de planos não pode estar vazia!", HttpStatus.BAD_REQUEST);
         }
 
-        BigDecimal valorPago = plano.getPreco();
+        if (dto.idsProduto().size() != dto.idsPlano().size()) {
+            throw new ExcecoesCustomizada("Cada produto deve ter um plano correspondente.", HttpStatus.BAD_REQUEST);
+        }
+
+        for (int i = 0; i < dto.idsProduto().size(); i++) {
+            Long idProduto = dto.idsProduto().get(i);
+            Long idPlano = dto.idsPlano().get(i);
+
+            Produto produto = produtoRepository.findById(idProduto)
+                    .orElseThrow(() -> new ExcecoesCustomizada("Produto com ID " + idProduto + " não encontrado", HttpStatus.NOT_FOUND));
+
+            Long totalVendas = vendaRepository.contarVendasPorProduto(produto.getId());
+            Long quantidadeMaxima = produto.getDadosProduto().disponibilidade().quantidadeMaxima();
+
+            if (quantidadeMaxima != null && totalVendas >= quantidadeMaxima) {
+                throw new ExcecoesCustomizada("Quantidade máxima atingida para o produto com ID " + idProduto, HttpStatus.BAD_REQUEST);
+            }
+
+            Plano plano = produto.getPlanos().stream()
+                    .filter(p -> p.getId().equals(idPlano))
+                    .findFirst()
+                    .orElseThrow(() -> new ExcecoesCustomizada("Plano com ID " + idPlano + " não encontrado para o produto " + idProduto, HttpStatus.BAD_REQUEST));
+
+            if (!plano.getStatus().equals(ProdutoStatus.ATIVO)) {
+                throw new ExcecoesCustomizada("O plano com ID " + idPlano + " não está ativo", HttpStatus.BAD_REQUEST);
+            }
+
+            valorPago = valorPago.add(plano.getPreco());
+            produtos.add(produto);
+            planos.add(plano);
+        }
 
         OrigemCompra origemCompra = primeiraVenda ? OrigemCompra.PRIMEIRA_COMPRA : OrigemCompra.RECORRENCIA;
 
-        Usuario cliente = usuarioRepository.findById(dto.idCliente()).orElseThrow(() -> new ExcecoesCustomizada("Cliente não encontrado", HttpStatus.NOT_FOUND));
+        Usuario cliente = usuarioRepository.findById(dto.idCliente())
+                .orElseThrow(() -> new ExcecoesCustomizada("Cliente não encontrado", HttpStatus.NOT_FOUND));
+
         if (dto.idVendedor() != null && dto.idVendedor() > 0) {
-            vendedor = usuarioRepository.findById(dto.idCliente()).orElseThrow(() -> new ExcecoesCustomizada("Cliente não encontrado", HttpStatus.NOT_FOUND));
+            vendedor = usuarioRepository.findById(dto.idVendedor())
+                    .orElseThrow(() -> new ExcecoesCustomizada("Vendedor não encontrado", HttpStatus.NOT_FOUND));
         }
 
+        // Aplicação de cupom (opcional)
         if (dto.codigoCupom() != null && !StringUtils.isNullOrEmpty(dto.codigoCupom())) {
-            cupom = produto.getCupom().stream()
+            // Procura o cupom entre os produtos
+            cupom = produtos.stream()
+                    .flatMap(p -> p.getCupom().stream())
                     .filter(c -> c.getCodigoCupom().equals(dto.codigoCupom()))
                     .findFirst()
                     .orElseThrow(() -> new ExcecoesCustomizada("Cupom não encontrado ou inválido", HttpStatus.BAD_REQUEST));
 
-            if (cupom.getStatus().equals(ProdutoStatus.INATIVO))
-                throw new ExcecoesCustomizada("Cupom não encontrado ou inválido", HttpStatus.BAD_REQUEST);
+            if (cupom.getStatus().equals(ProdutoStatus.INATIVO)) {
+                throw new ExcecoesCustomizada("Cupom inativo", HttpStatus.BAD_REQUEST);
+            }
 
             BigDecimal valorDesconto;
-
             if (cupom.getTipoDesconto().equals(TipoDesconto.VALOR)) {
                 valorDesconto = cupom.getValor();
             } else {
@@ -80,20 +113,19 @@ public class VendaMapper {
             }
 
             valorPago = valorPago.subtract(valorDesconto);
-
             if (valorPago.compareTo(BigDecimal.ZERO) < 0) {
                 valorPago = BigDecimal.ZERO;
             }
         }
 
         return Venda.builder()
-                .produto(produto)
+                .produtos(produtos)
+                .planos(planos)
                 .valorPago(valorPago)
-                .plano(plano)
                 .cupomUsado(cupom)
                 .origemCompra(origemCompra)
                 .statusVenda(StatusVenda.CARRINHO_ABANDONADO)
-                .tipoRecorrencia(produto.getDadosProduto().cobranca().tipoCobranca())
+                .tipoRecorrencia(produtos.get(0).getDadosProduto().cobranca().tipoCobranca())
                 .cliente(cliente)
                 .vendedor(vendedor)
                 .build();
@@ -102,12 +134,12 @@ public class VendaMapper {
     public VendaResponseDTO toResponseDTO(Venda venda) {
         return VendaResponseDTO.builder()
                 .id(venda.getId())
-                .produto(venda.getProduto())
+                .produtos(venda.getProdutos())
                 .valorPago(venda.getValorPago())
                 .txid(venda.getTxid())
                 .codigoSolicitacao(venda.getCodigoSolicitacao())
                 .cupomUsado(venda.getCupomUsado())
-                .plano(venda.getPlano())
+                .planos(venda.getPlanos())
                 .origemCompra(venda.getOrigemCompra())
                 .metodoPagamento(venda.getMetodoPagamento())
                 .statusPagamento(venda.getStatusPagamento())
@@ -126,29 +158,53 @@ public class VendaMapper {
         Cupom cupom = null;
         Usuario vendedor = null;
 
-        Usuario cliente = usuarioRepository.findById(dto.idCliente()).orElseThrow(() -> new ExcecoesCustomizada("Cliente não encontrado", HttpStatus.NOT_FOUND));
+        Usuario cliente = usuarioRepository.findById(dto.idCliente())
+                .orElseThrow(() -> new ExcecoesCustomizada("Cliente não encontrado", HttpStatus.NOT_FOUND));
+
         if (dto.idVendedor() != null && dto.idVendedor() > 0) {
-            vendedor = usuarioRepository.findById(dto.idCliente()).orElseThrow(() -> new ExcecoesCustomizada("Cliente não encontrado", HttpStatus.NOT_FOUND));
+            vendedor = usuarioRepository.findById(dto.idVendedor())
+                    .orElseThrow(() -> new ExcecoesCustomizada("Vendedor não encontrado", HttpStatus.NOT_FOUND));
         }
 
-        Produto produto = produtoRepository.findById(dto.idProduto()).orElseThrow(() -> new ExcecoesCustomizada("Produto não encontrado", HttpStatus.NOT_FOUND));
-        Plano plano = produto.getPlanos().stream()
-                .filter(p -> p.getId().equals(dto.idPlano()))
-                .findFirst()
-                .orElseThrow(() -> new ExcecoesCustomizada("Plano não encontrado!", HttpStatus.BAD_REQUEST));
+        // Buscar todos os produtos pelos IDs
+        List<Produto> produtos = produtoRepository.findAllById(dto.idsProduto());
+        if (produtos.size() != dto.idsProduto().size()) {
+            throw new ExcecoesCustomizada("Um ou mais produtos não foram encontrados", HttpStatus.NOT_FOUND);
+        }
 
+        // Buscar planos dentro dos produtos
+        List<Plano> planos = new ArrayList<>();
+        for (Produto produto : produtos) {
+            List<Plano> planosDoProduto = produto.getPlanos().stream()
+                    .filter(p -> dto.idsPlano().contains(p.getId()))
+                    .toList();
+
+            planos.addAll(planosDoProduto);
+        }
+
+        // Validação: todos os planos devem ter sido encontrados
+        if (planos.size() != dto.idsPlano().size()) {
+            throw new ExcecoesCustomizada("Um ou mais planos não foram encontrados ou não pertencem aos produtos informados", HttpStatus.BAD_REQUEST);
+        }
+
+        // Cupom (opcional)
         if (dto.idCupomUsado() != null && dto.idCupomUsado() > 0) {
-            cupom = produto.getCupom().stream()
+            Optional<Cupom> cupomOpt = produtos.stream()
+                    .flatMap(p -> p.getCupom().stream())
                     .filter(c -> c.getId().equals(dto.idCupomUsado()))
-                    .findFirst()
-                    .orElseThrow(() -> new ExcecoesCustomizada("Cupom não encontrado ou inválido", HttpStatus.BAD_REQUEST));
+                    .findFirst();
 
+            if (cupomOpt.isEmpty()) {
+                throw new ExcecoesCustomizada("Cupom não encontrado ou não pertence a esses produtos", HttpStatus.BAD_REQUEST);
+            }
+
+            cupom = cupomOpt.get();
         }
 
+        // Atualização da venda
         venda.setValorPago(dto.valorPago());
         venda.setCupomUsado(cupom);
         venda.setOrigemCompra(dto.origemCompra());
-        venda.setPlano(plano);
         venda.setMetodoPagamento(dto.metodoPagamento());
         venda.setStatusPagamento(dto.statusPagamento());
         venda.setStatusVenda(dto.statusVenda());
@@ -156,7 +212,10 @@ public class VendaMapper {
         venda.setCliente(cliente);
         venda.setVendedor(vendedor);
         venda.setDataReembolso(dto.dataReembolso());
+        venda.setProdutos(produtos);
+        venda.setPlanos(planos);
     }
+
 
     public void reembolsoConcluido(Venda venda) {
         if (venda.getStatusPagamento().equals(StatusPagamento.REEMBOLSO_SOLICITADO)) {
