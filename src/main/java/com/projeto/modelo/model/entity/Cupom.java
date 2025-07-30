@@ -5,8 +5,11 @@ import com.projeto.modelo.model.enums.ProdutoStatus;
 import com.projeto.modelo.model.enums.TipoDesconto;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -32,4 +35,15 @@ public class Cupom {
     private Produto produto;
     @Enumerated(EnumType.STRING)
     private ProdutoStatus status;
+
+    @CreationTimestamp
+    @Column(name = "data_criacao", updatable = false)
+    private LocalDateTime dataCriacao;
+
+    @UpdateTimestamp
+    @Column(name = "data_atualizacao")
+    private LocalDateTime dataAtualizacao;
+
+    @Column(name = "data_delecao")
+    private LocalDateTime dataDelecao;
 }
