@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class AssinaturaMapper {
@@ -39,7 +41,7 @@ public class AssinaturaMapper {
         LocalDateTime dataFim;
         LocalDateTime dataPagamento = venda.getDataPagamento();
 
-        dataFim = switch (venda.getPlano().getPeridiocidade()) {
+        dataFim = switch (venda.getPlanos().get(0).getPeridiocidade()) {
             case MENSAL -> dataPagamento.plusMonths(1);
             case BIMESTRAL -> dataPagamento.plusMonths(2);
             case TRIMESTRAL -> dataPagamento.plusMonths(3);
@@ -48,8 +50,8 @@ public class AssinaturaMapper {
         };
 
         return Assinatura.builder()
-                .produto(venda.getProduto())
-                .plano(venda.getPlano())
+                .produtos(venda.getProdutos())
+                .planos(venda.getPlanos())
                 .cliente(venda.getCliente())
                 .venda(venda)
                 .tipoCobranca(venda.getTipoRecorrencia())
@@ -61,20 +63,45 @@ public class AssinaturaMapper {
     }
 
     public void atualizarAssinatura(Assinatura assinatura, AssinaturaRequestDTO dto) {
-        if (dto.idPlano() == null || dto.idProduto() == null || dto.idVenda() == null || dto.idUsuario() == null)
+        if (dto.idsPlano() == null || dto.idsProduto() == null || dto.idVenda() == null || dto.idUsuario() == null)
             throw new ExcecoesCustomizada("Existem dados obrigatórios não presentes!", HttpStatus.BAD_REQUEST);
 
-        Venda venda = vendaRepository.findById(dto.idVenda()).orElseThrow(() -> new ExcecoesCustomizada("Venda não encontrada!", HttpStatus.NOT_FOUND));
-        Produto produto = produtoRepository.findById(dto.idProduto()).orElseThrow(() -> new ExcecoesCustomizada("Produto não encontrado!", HttpStatus.NOT_FOUND));
-        Plano plano = produto.getPlanos()
-                .stream()
-                .filter(p -> p.getId().equals(dto.idPlano()))
-                .findFirst()
-                .orElseThrow(() -> new ExcecoesCustomizada("Plano não encontrado!", HttpStatus.NOT_FOUND));
-        Usuario cliente = usuarioRepository.findById(dto.idUsuario()).orElseThrow(() -> new ExcecoesCustomizada("Cliente não encontrado!", HttpStatus.NOT_FOUND));
+        if (dto.idsPlano().size() != dto.idsProduto().size()) {
+            throw new ExcecoesCustomizada("Cada produto deve ter um plano correspondente.", HttpStatus.BAD_REQUEST);
+        }
 
-        assinatura.setProduto(produto);
-        assinatura.setPlano(plano);
+        Venda venda = vendaRepository.findById(dto.idVenda())
+                .orElseThrow(() -> new ExcecoesCustomizada("Venda não encontrada!", HttpStatus.NOT_FOUND));
+
+        Usuario cliente = usuarioRepository.findById(dto.idUsuario())
+                .orElseThrow(() -> new ExcecoesCustomizada("Cliente não encontrado!", HttpStatus.NOT_FOUND));
+
+        List<Produto> produtos = produtoRepository.findAllById(dto.idsProduto());
+        if (produtos.size() != dto.idsProduto().size()) {
+            throw new ExcecoesCustomizada("Um ou mais produtos não foram encontrados!", HttpStatus.NOT_FOUND);
+        }
+
+        List<Plano> planos = new ArrayList<>();
+
+        for (int i = 0; i < dto.idsProduto().size(); i++) {
+            Long idProduto = dto.idsProduto().get(i);
+            Long idPlano = dto.idsPlano().get(i);
+
+            Produto produto = produtos.stream()
+                    .filter(p -> p.getId().equals(idProduto))
+                    .findFirst()
+                    .orElseThrow(() -> new ExcecoesCustomizada("Produto com ID " + idProduto + " não encontrado", HttpStatus.NOT_FOUND));
+
+            Plano plano = produto.getPlanos().stream()
+                    .filter(p -> p.getId().equals(idPlano))
+                    .findFirst()
+                    .orElseThrow(() -> new ExcecoesCustomizada("Plano com ID " + idPlano + " não encontrado para o produto " + idProduto, HttpStatus.NOT_FOUND));
+
+            planos.add(plano);
+        }
+
+        assinatura.setProdutos(produtos);
+        assinatura.setPlanos(planos);
         assinatura.setVenda(venda);
         assinatura.setCliente(cliente);
         assinatura.setTipoCobranca(dto.tipoCobranca());
@@ -93,8 +120,8 @@ public class AssinaturaMapper {
     public AssinaturaResponseDTO toResponseDTO(Assinatura assinatura) {
         return AssinaturaResponseDTO.builder()
                 .id(assinatura.getId())
-                .produto(assinatura.getProduto())
-                .plano(assinatura.getPlano())
+                .produtos(assinatura.getProdutos())
+                .planos(assinatura.getPlanos())
                 .cliente(assinatura.getCliente())
                 .venda(assinatura.getVenda())
                 .tipoCobranca(assinatura.getTipoCobranca())

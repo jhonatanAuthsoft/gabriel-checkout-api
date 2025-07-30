@@ -6,11 +6,12 @@ import com.projeto.modelo.model.enums.TipoCobranca;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record AssinaturaRequestDTO(
-        Long idProduto,
-        Long idPlano,
+        List<Long> idsProduto,
+        List<Long> idsPlano,
         Long idUsuario,
         Long idVenda,
         TipoCobranca tipoCobranca,

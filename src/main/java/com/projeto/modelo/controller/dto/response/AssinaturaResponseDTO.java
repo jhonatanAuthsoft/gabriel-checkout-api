@@ -11,12 +11,13 @@ import lombok.Builder;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record AssinaturaResponseDTO(
         Long id,
-        Produto produto,
-        Plano plano,
+        List<Produto> produtos,
+        List<Plano> planos,
         Usuario cliente,
         Venda venda,
         TipoCobranca tipoCobranca,
