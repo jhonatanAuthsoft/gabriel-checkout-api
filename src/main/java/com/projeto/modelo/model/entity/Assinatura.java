@@ -8,6 +8,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,13 +23,21 @@ public class Assinatura {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_produto")
-    private Produto produto;
+    @ManyToMany
+    @JoinTable(
+            name = "assinatura_produto", // nome da tabela de junção
+            joinColumns = @JoinColumn(name = "assinatura_id"), // chave estrangeira da entidade atual (provavelmente Venda)
+            inverseJoinColumns = @JoinColumn(name = "produto_id") // chave estrangeira da entidade relacionada (Produto)
+    )
+    private List<Produto> produtos;
 
-    @ManyToOne
-    @JoinColumn(name = "id_plano")
-    private Plano plano;
+    @ManyToMany
+    @JoinTable(
+            name = "assinatura_plano", // nome da tabela de junção
+            joinColumns = @JoinColumn(name = "assinatura_id"), // chave estrangeira da entidade atual (provavelmente Venda)
+            inverseJoinColumns = @JoinColumn(name = "plano_id") // chave estrangeira da entidade relacionada (Produto)
+    )
+    private List<Plano> planos;
 
     @OneToOne
     @JoinColumn(name = "id_venda")

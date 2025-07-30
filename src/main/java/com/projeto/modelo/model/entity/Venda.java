@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Getter
@@ -22,8 +23,13 @@ public class Venda {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne
-    private Produto produto;
+    @ManyToMany
+    @JoinTable(
+            name = "venda_produto", // nome da tabela de junção
+            joinColumns = @JoinColumn(name = "venda_id"), // chave estrangeira da entidade atual (provavelmente Venda)
+            inverseJoinColumns = @JoinColumn(name = "produto_id") // chave estrangeira da entidade relacionada (Produto)
+    )
+    private List<Produto> produtos;
 
     @Column(name = "valor_pago")
     private BigDecimal valorPago;
@@ -39,8 +45,13 @@ public class Venda {
     @ManyToOne
     private Cupom cupomUsado;
 
-    @ManyToOne
-    private Plano plano;
+    @ManyToMany
+    @JoinTable(
+            name = "venda_plano", // nome da tabela de junção
+            joinColumns = @JoinColumn(name = "venda_id"), // chave estrangeira da entidade atual (provavelmente Venda)
+            inverseJoinColumns = @JoinColumn(name = "plano_id") // chave estrangeira da entidade relacionada (Produto)
+    )
+    private List<Plano> planos;
 
     @Column(name = "origem_compra")
     @Enumerated(EnumType.STRING)
