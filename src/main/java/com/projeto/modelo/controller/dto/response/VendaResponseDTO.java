@@ -10,16 +10,17 @@ import org.springframework.cglib.core.Local;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record VendaResponseDTO(
         Long id,
-        Produto produto,
+        List<Produto> produtos,
         BigDecimal valorPago,
         String txid,
         String codigoSolicitacao,
         Cupom cupomUsado,
-        Plano plano,
+        List<Plano> planos,
         OrigemCompra origemCompra,
         MetodoPagamento metodoPagamento,
         StatusPagamento statusPagamento,

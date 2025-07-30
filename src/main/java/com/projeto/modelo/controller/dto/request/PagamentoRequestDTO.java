@@ -16,7 +16,7 @@ public record PagamentoRequestDTO(
 ) {
     public PagamentoRequestDTO {
         if (idVenda == null || idVenda == 0) {
-            throw new ExcecoesCustomizada("O id do produto não pode ficar em branco e deve ser válido!", HttpStatus.BAD_REQUEST);
+            throw new ExcecoesCustomizada("O id da venda não pode ficar em branco e deve ser válido!", HttpStatus.BAD_REQUEST);
         }
 
         if (StringUtils.isNullOrEmpty(email)) {
