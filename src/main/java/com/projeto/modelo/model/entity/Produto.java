@@ -38,6 +38,9 @@ public class Produto {
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Imagem> imagens = new ArrayList<>();
 
+    @OneToMany(mappedBy = "produtoOrigem", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProdutoUpsell> produtosUpsell = new ArrayList();
+
     @CreationTimestamp
     @Column(name = "data_criacao", updatable = false)
     private LocalDateTime dataCriacao;
