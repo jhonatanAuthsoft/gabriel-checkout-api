@@ -3,7 +3,9 @@ package com.projeto.modelo.mapper;
 import com.projeto.modelo.controller.dto.request.CadastrarProdutoDTO;
 import com.projeto.modelo.controller.dto.response.ProdutoResponseDTO;
 import com.projeto.modelo.controller.dto.response.ProdutoResponseListDTO;
+import com.projeto.modelo.model.entity.Cupom;
 import com.projeto.modelo.model.entity.Imagem;
+import com.projeto.modelo.model.entity.Plano;
 import com.projeto.modelo.model.entity.Produto;
 import com.projeto.modelo.model.entity.produto.*;
 import com.projeto.modelo.model.enums.ProdutoStatus;
@@ -29,11 +31,27 @@ public class ProdutoMapper {
     private CupomMapper cupomMapper;
 
     @Autowired
+    ProdutoUpsellMapper produtoUpsellMapper;
+
+    @Autowired
     private AwsS3Service awsS3Service;
 
     public ProdutoResponseDTO toResponseDTO(Produto produto) {
 
         List<Imagem> imagens = new ArrayList<>();
+
+        List<Plano> planosAtivos = produto.getPlanos() == null ?
+                List.of() :
+                produto.getPlanos().stream()
+                        .filter(plano -> plano.getDataDelecao() == null)
+                        .toList();
+
+        // Filtrar cupons ativos (sem dataDelecao)
+        List<Cupom> cuponsAtivos = produto.getCupom() == null ?
+                List.of() :
+                produto.getCupom().stream()
+                        .filter(cupom -> cupom.getDataDelecao() == null)
+                        .toList();
 
         if (produto.getImagens() != null && !produto.getImagens().isEmpty()) {
             imagens = produto.getImagens().stream()
@@ -46,8 +64,9 @@ public class ProdutoMapper {
                         .id(produto.getId())
                         .dadosProduto(produto.getDadosProduto())
                         .checkoutProduto(produto.getCheckoutProduto())
-                        .planos(produto.getPlanos())
-                        .cupom(produto.getCupom())
+                        .planos(planosAtivos)
+                        .produtosUpsell(produto.getProdutosUpsell())
+                        .cupom(cuponsAtivos)
                         .imagens(imagens)
                         .dataCriacao(produto.getDataCriacao())
                         .dataAtualizacao(produto.getDataAtualizacao())
@@ -116,6 +135,7 @@ public class ProdutoMapper {
         produto.setCheckoutProduto(checkoutMapper.toEntity(dto.dados().getCheckoutProduto(), produto));
         produto.setPlanos(planoMapper.toEntity(dto.dados().getPlanos(), produto));
         produto.setCupom(cupomMapper.toEntity(dto.dados().getCupom(), produto));
+        produto.setProdutosUpsell(produtoUpsellMapper.toEntity(dto.dados().getProdutosUpsell(), produto));
 
         return produto;
     }
@@ -164,6 +184,6 @@ public class ProdutoMapper {
         checkoutMapper.editarCheckout(produto.getCheckoutProduto(), dto.dados().getCheckoutProduto().getPerguntas());
         planoMapper.editarPlano(dto.dados().getPlanos(), produto);
         cupomMapper.editarCupom(dto.dados().getCupom(), produto);
-
+        produtoUpsellMapper.editarProdutoUpsell(dto.dados().getProdutosUpsell(), produto);
     }
 }
