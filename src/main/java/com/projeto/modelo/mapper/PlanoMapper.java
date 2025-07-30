@@ -5,6 +5,7 @@ import com.projeto.modelo.model.entity.Produto;
 import com.projeto.modelo.model.enums.ProdutoStatus;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +51,7 @@ public class PlanoMapper {
             ProdutoStatus status = dto.getStatus() != null
                     ? dto.getStatus()
                     : ProdutoStatus.ATIVO;
+
             if (dto.getId() != null && existentesPorId.containsKey(dto.getId())) {
                 Plano plano = existentesPorId.get(dto.getId());
                 idsDto.add(plano.getId());
@@ -80,13 +82,15 @@ public class PlanoMapper {
             }
         }
 
-        // Remover os que não estão mais na lista recebida
-        List<Plano> paraRemover = existentes.stream()
-                .filter(p -> p.getId() != null && !idsDto.contains(p.getId()))
-                .toList();
-
-        existentes.removeAll(paraRemover);
+        // Soft delete: marcar como deletado os planos que não estão no DTO
+        for (Plano plano : existentes) {
+            if (plano.getId() != null && !idsDto.contains(plano.getId())) {
+                plano.setDataDelecao(LocalDateTime.now());
+                plano.setStatus(ProdutoStatus.INATIVO);
+            }
+        }
     }
+
 
 
 }

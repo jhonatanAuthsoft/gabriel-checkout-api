@@ -2,12 +2,14 @@ package com.projeto.modelo.mapper;
 
 import com.projeto.modelo.configuracao.exeption.ExcecoesCustomizada;
 import com.projeto.modelo.model.entity.Cupom;
+import com.projeto.modelo.model.entity.Plano;
 import com.projeto.modelo.model.entity.Produto;
 import com.projeto.modelo.model.enums.ProdutoStatus;
 import com.projeto.modelo.util.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -84,11 +86,12 @@ public class CupomMapper {
         }
 
         // Remove cupons antigos que não estão na nova lista
-        List<Cupom> paraRemover = existentes.stream()
-                .filter(c -> c.getId() != null && !idsDto.contains(c.getId()))
-                .toList();
-
-        existentes.removeAll(paraRemover);
+        for (Cupom cupom : existentes) {
+            if (cupom.getId() != null && !idsDto.contains(cupom.getId())) {
+                cupom.setDataDelecao(LocalDateTime.now());
+                cupom.setStatus(ProdutoStatus.INATIVO);
+            }
+        }
     }
 
 
