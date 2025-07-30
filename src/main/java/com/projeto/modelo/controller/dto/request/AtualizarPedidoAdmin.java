@@ -4,12 +4,13 @@ import com.projeto.modelo.model.enums.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record AtualizarPedidoAdmin(
-        Long idProduto,
+        List<Long> idsProduto,
         BigDecimal valorPago,
         Long idCupomUsado,
-        Long idPlano,
+        List<Long> idsPlano,
         OrigemCompra origemCompra,
         MetodoPagamento metodoPagamento,
         StatusPagamento statusPagamento,
