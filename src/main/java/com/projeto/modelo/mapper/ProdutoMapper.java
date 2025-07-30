@@ -3,10 +3,7 @@ package com.projeto.modelo.mapper;
 import com.projeto.modelo.controller.dto.request.CadastrarProdutoDTO;
 import com.projeto.modelo.controller.dto.response.ProdutoResponseDTO;
 import com.projeto.modelo.controller.dto.response.ProdutoResponseListDTO;
-import com.projeto.modelo.model.entity.Cupom;
-import com.projeto.modelo.model.entity.Imagem;
-import com.projeto.modelo.model.entity.Plano;
-import com.projeto.modelo.model.entity.Produto;
+import com.projeto.modelo.model.entity.*;
 import com.projeto.modelo.model.entity.produto.*;
 import com.projeto.modelo.model.enums.ProdutoStatus;
 import com.projeto.modelo.service.AwsS3Service;
@@ -53,6 +50,24 @@ public class ProdutoMapper {
                         .filter(cupom -> cupom.getDataDelecao() == null)
                         .toList();
 
+        List<ProdutoUpsell> produtosUpsellFiltrados = produto.getProdutosUpsell() == null ?
+                List.of() :
+                produto.getProdutosUpsell().stream()
+                        .peek(p -> {
+                            List<Plano> planos = p.getProduto().getPlanos() == null ? List.of() :
+                                    p.getProduto().getPlanos().stream()
+                                            .filter(plano -> plano.getDataDelecao() == null)
+                                            .toList();
+                            p.getProduto().setPlanos(planos);
+
+                            List<Cupom> cupons = p.getProduto().getCupom() == null ? List.of() :
+                                    p.getProduto().getCupom().stream()
+                                            .filter(cupom -> cupom.getDataDelecao() == null)
+                                            .toList();
+                            p.getProduto().setCupom(cupons);
+                        })
+                        .toList();
+
         if (produto.getImagens() != null && !produto.getImagens().isEmpty()) {
             imagens = produto.getImagens().stream()
                     .peek(imagem -> imagem.setSignedUrl(awsS3Service.generateSignedDownloadUrl(imagem.getId())))
@@ -65,7 +80,7 @@ public class ProdutoMapper {
                         .dadosProduto(produto.getDadosProduto())
                         .checkoutProduto(produto.getCheckoutProduto())
                         .planos(planosAtivos)
-                        .produtosUpsell(produto.getProdutosUpsell())
+                        .produtosUpsell(produtosUpsellFiltrados)
                         .cupom(cuponsAtivos)
                         .imagens(imagens)
                         .dataCriacao(produto.getDataCriacao())
