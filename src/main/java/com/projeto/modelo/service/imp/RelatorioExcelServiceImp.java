@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RelatorioExcelServiceImp implements RelatorioExcelService {
@@ -169,58 +170,89 @@ public class RelatorioExcelServiceImp implements RelatorioExcelService {
     public byte[] gerarRelatorioVendasSelecionadasExcel(RelatorioVendasDTO solicitacao) {
         List<Venda> vendas = vendaRepository.findAllById(solicitacao.ids());
         vendas.sort(java.util.Comparator.comparing(Venda::getId));
+
         BigDecimal totalFinalizada = vendas.stream()
-                .filter(v -> v.getValorPago() != null && v.getStatusVenda() != null && v.getStatusVenda().name().equals("FINALIZADO"))
+                .filter(v -> v.getValorPago() != null
+                             && v.getStatusVenda() != null
+                             && v.getStatusVenda().name().equals("FINALIZADO"))
                 .map(Venda::getValorPago)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         BigDecimal totalReembolsado = vendas.stream()
-                .filter(v -> v.getValorPago() != null && v.getStatusPagamento() != null && v.getStatusPagamento().name().equals("REEMBOLSADO"))
+                .filter(v -> v.getValorPago() != null
+                             && v.getStatusPagamento() != null
+                             && v.getStatusPagamento().name().equals("REEMBOLSADO"))
                 .map(Venda::getValorPago)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Vendas Selecionadas");
             int rowIdx = 0;
+
             Row row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue("Relatório de Vendas Selecionadas");
+
             row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue("Total de Venda Finalizada");
             row.createCell(1).setCellValue("Total Reembolsado");
+
             row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue("R$ " + totalFinalizada);
             row.createCell(1).setCellValue("R$ " + totalReembolsado);
+
             row = sheet.createRow(rowIdx++);
-            row.createCell(0).setCellValue("");
+            row.createCell(0).setCellValue(""); // Espaço
+
             // Cabeçalhos
             row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue("ID Venda");
             row.createCell(1).setCellValue("Cliente");
-            row.createCell(2).setCellValue("Produto");
-            row.createCell(3).setCellValue("Plano");
+            row.createCell(2).setCellValue("Produtos");
+            row.createCell(3).setCellValue("Planos");
             row.createCell(4).setCellValue("Valor Pago");
             row.createCell(5).setCellValue("Método Pagamento");
             row.createCell(6).setCellValue("Data Compra");
             row.createCell(7).setCellValue("Status Pagamento");
             row.createCell(8).setCellValue("Status Venda");
+
             for (Venda v : vendas) {
                 row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(v.getId());
                 row.createCell(1).setCellValue(v.getCliente() != null ? v.getCliente().getNome() : "");
-                String nomeProduto = "";
-                Produto produto = v.getProduto();
-                if (produto != null && produto.getDadosProduto() != null && produto.getDadosProduto().dadosGerais() != null) {
-                    nomeProduto = produto.getDadosProduto().dadosGerais().nome();
-                }
-                row.createCell(2).setCellValue(nomeProduto);
-                row.createCell(3).setCellValue(v.getPlano() != null ? v.getPlano().getNome() : "");
+
+                // Produtos
+                String nomeProdutos = v.getProdutos() != null
+                        ? v.getProdutos().stream()
+                        .map(p -> {
+                            if (p.getDadosProduto() != null && p.getDadosProduto().dadosGerais() != null) {
+                                return p.getDadosProduto().dadosGerais().nome();
+                            }
+                            return "(Produto sem nome)";
+                        })
+                        .collect(Collectors.joining(", "))
+                        : "";
+                row.createCell(2).setCellValue(nomeProdutos);
+
+                // Planos
+                String nomePlanos = v.getPlanos() != null
+                        ? v.getPlanos().stream()
+                        .map(p -> p.getNome() != null ? p.getNome() : "(Plano sem nome)")
+                        .collect(Collectors.joining(", "))
+                        : "";
+                row.createCell(3).setCellValue(nomePlanos);
+
                 row.createCell(4).setCellValue(v.getValorPago() != null ? "R$ " + v.getValorPago() : "");
                 row.createCell(5).setCellValue(v.getMetodoPagamento() != null ? v.getMetodoPagamento().name() : "");
                 row.createCell(6).setCellValue(v.getDataCompra() != null ? v.getDataCompra().format(dtf) : "");
                 row.createCell(7).setCellValue(v.getStatusPagamento() != null ? v.getStatusPagamento().name() : "");
                 row.createCell(8).setCellValue(v.getStatusVenda() != null ? v.getStatusVenda().name() : "");
             }
+
             for (int i = 0; i < 10; i++) sheet.autoSizeColumn(i);
+
             workbook.write(baos);
             return baos.toByteArray();
+
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar Excel de vendas selecionadas", e);
         }

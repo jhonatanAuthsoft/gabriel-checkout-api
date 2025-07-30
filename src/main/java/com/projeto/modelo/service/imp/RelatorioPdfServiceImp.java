@@ -23,7 +23,9 @@ import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RelatorioPdfServiceImp implements RelatorioPdfService {
@@ -157,27 +159,32 @@ public class RelatorioPdfServiceImp implements RelatorioPdfService {
 
     public byte[] gerarRelatorioVendasSelecionadas(RelatorioVendasDTO solicitacao) {
         List<Venda> vendas = vendaRepository.findAllById(solicitacao.ids());
-        vendas.sort(java.util.Comparator.comparing(Venda::getId));
-        // Calcular valor total vendido
+        vendas.sort(Comparator.comparing(Venda::getId));
+
+        // Totais
         BigDecimal valorTotal = vendas.stream()
                 .filter(v -> v.getValorPago() != null)
                 .map(Venda::getValorPago)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        // Calcular totais
+
         BigDecimal totalFinalizada = vendas.stream()
                 .filter(v -> v.getValorPago() != null && v.getStatusVenda() != null && v.getStatusVenda().name().equals("FINALIZADO"))
                 .map(Venda::getValorPago)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         BigDecimal totalReembolsado = vendas.stream()
                 .filter(v -> v.getValorPago() != null && v.getStatusPagamento() != null && v.getStatusPagamento().name().equals("REEMBOLSADO"))
                 .map(Venda::getValorPago)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         BigDecimal resultado = totalFinalizada.subtract(totalReembolsado);
+
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdf = new PdfDocument(writer);
             Document document = new Document(pdf);
 
+            // Título
             Paragraph titulo = new Paragraph("Relatório de Vendas Selecionadas")
                     .setFontSize(18)
                     .setBold()
@@ -187,39 +194,89 @@ public class RelatorioPdfServiceImp implements RelatorioPdfService {
 
             // Tabela de totais
             Table totais = new Table(UnitValue.createPercentArray(new float[]{2, 2})).useAllAvailableWidth();
-            totais.addHeaderCell(new Cell().add(new Paragraph("Total de Venda Finalizada").setFontSize(10)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER));
-            totais.addHeaderCell(new Cell().add(new Paragraph("Total Reembolsado").setFontSize(10)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER));
-            totais.addCell(new Cell().add(new Paragraph("R$ " + totalFinalizada).setFontSize(10)).setTextAlignment(TextAlignment.CENTER));
-            totais.addCell(new Cell().add(new Paragraph("R$ " + totalReembolsado).setFontSize(10)).setTextAlignment(TextAlignment.CENTER));
+            totais.addHeaderCell(new Cell().add(new Paragraph("Total de Venda Finalizada").setFontSize(10))
+                    .setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER));
+            totais.addHeaderCell(new Cell().add(new Paragraph("Total Reembolsado").setFontSize(10))
+                    .setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER));
+            totais.addCell(new Cell().add(new Paragraph("R$ " + totalFinalizada).setFontSize(10))
+                    .setTextAlignment(TextAlignment.CENTER));
+            totais.addCell(new Cell().add(new Paragraph("R$ " + totalReembolsado).setFontSize(10))
+                    .setTextAlignment(TextAlignment.CENTER));
             document.add(totais.setMarginBottom(10f));
 
+            // Tabela de vendas
             float fontSize = 9f;
-            Table tabela = new Table(UnitValue.createPercentArray(new float[]{1, 3, 3, 2, 2, 2, 2, 2, 2})).useAllAvailableWidth();
+            Table tabela = new Table(UnitValue.createPercentArray(new float[]{1, 3, 3, 2, 2, 2, 2, 2, 2}))
+                    .useAllAvailableWidth();
+
             // Cabeçalhos
-            tabela.addHeaderCell(new Cell().add(new Paragraph("ID Venda").setFontSize(fontSize)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-            tabela.addHeaderCell(new Cell().add(new Paragraph("Cliente").setFontSize(fontSize)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-            tabela.addHeaderCell(new Cell().add(new Paragraph("Produto").setFontSize(fontSize)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-            tabela.addHeaderCell(new Cell().add(new Paragraph("Plano").setFontSize(fontSize)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-            tabela.addHeaderCell(new Cell().add(new Paragraph("Valor Pago").setFontSize(fontSize)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-            tabela.addHeaderCell(new Cell().add(new Paragraph("Método Pagamento").setFontSize(fontSize)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-            tabela.addHeaderCell(new Cell().add(new Paragraph("Data Compra").setFontSize(fontSize)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-            tabela.addHeaderCell(new Cell().add(new Paragraph("Status Pagamento").setFontSize(fontSize)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-            tabela.addHeaderCell(new Cell().add(new Paragraph("Status Venda").setFontSize(fontSize)).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold().setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            for (Venda v : vendas) {
-                tabela.addCell(new Cell().add(new Paragraph(String.valueOf(v.getId())).setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-                tabela.addCell(new Cell().add(new Paragraph(v.getCliente() != null ? v.getCliente().getNome() : "").setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-                tabela.addCell(new Cell().add(new Paragraph(v.getProduto() != null ? v.getProduto().getDadosProduto().dadosGerais().nome() : "").setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-                tabela.addCell(new Cell().add(new Paragraph(v.getPlano() != null ? v.getPlano().getNome() : "").setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-                tabela.addCell(new Cell().add(new Paragraph(v.getValorPago() != null ? "R$ " + v.getValorPago() : "").setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-                tabela.addCell(new Cell().add(new Paragraph(v.getMetodoPagamento() != null ? v.getMetodoPagamento().name() : "").setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-                tabela.addCell(new Cell().add(new Paragraph(v.getDataCompra() != null ? v.getDataCompra().format(dtf) : "").setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-                tabela.addCell(new Cell().add(new Paragraph(v.getStatusPagamento() != null ? v.getStatusPagamento().name() : "").setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
-                tabela.addCell(new Cell().add(new Paragraph(v.getStatusVenda() != null ? v.getStatusVenda().name() : "").setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
+            String[] headers = {
+                    "ID Venda", "Cliente", "Produtos", "Planos", "Valor Pago",
+                    "Método Pagamento", "Data Compra", "Status Pagamento", "Status Venda"
+            };
+
+            for (String header : headers) {
+                tabela.addHeaderCell(new Cell()
+                        .add(new Paragraph(header).setFontSize(fontSize))
+                        .setBackgroundColor(ColorConstants.LIGHT_GRAY)
+                        .setBold()
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE));
             }
+
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+            for (Venda v : vendas) {
+                tabela.addCell(new Cell().add(new Paragraph(String.valueOf(v.getId())).setFontSize(fontSize))
+                        .setTextAlignment(TextAlignment.CENTER));
+
+                tabela.addCell(new Cell().add(new Paragraph(v.getCliente() != null ? v.getCliente().getNome() : "")
+                        .setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER));
+
+                // Produtos (lista)
+                String nomeProdutos = v.getProdutos() != null
+                        ? v.getProdutos().stream()
+                        .map(p -> p.getDadosProduto() != null && p.getDadosProduto().dadosGerais() != null
+                                ? p.getDadosProduto().dadosGerais().nome()
+                                : "(Produto sem nome)")
+                        .collect(Collectors.joining(", "))
+                        : "";
+                tabela.addCell(new Cell().add(new Paragraph(nomeProdutos).setFontSize(fontSize))
+                        .setTextAlignment(TextAlignment.CENTER));
+
+                // Planos (lista)
+                String nomePlanos = v.getPlanos() != null
+                        ? v.getPlanos().stream()
+                        .map(p -> p.getNome() != null ? p.getNome() : "(Plano sem nome)")
+                        .collect(Collectors.joining(", "))
+                        : "";
+                tabela.addCell(new Cell().add(new Paragraph(nomePlanos).setFontSize(fontSize))
+                        .setTextAlignment(TextAlignment.CENTER));
+
+                tabela.addCell(new Cell().add(new Paragraph(v.getValorPago() != null ? "R$ " + v.getValorPago() : "")
+                        .setFontSize(fontSize)).setTextAlignment(TextAlignment.CENTER));
+
+                tabela.addCell(new Cell().add(new Paragraph(v.getMetodoPagamento() != null
+                                ? v.getMetodoPagamento().name() : "").setFontSize(fontSize))
+                        .setTextAlignment(TextAlignment.CENTER));
+
+                tabela.addCell(new Cell().add(new Paragraph(v.getDataCompra() != null
+                                ? v.getDataCompra().format(dtf) : "").setFontSize(fontSize))
+                        .setTextAlignment(TextAlignment.CENTER));
+
+                tabela.addCell(new Cell().add(new Paragraph(v.getStatusPagamento() != null
+                                ? v.getStatusPagamento().name() : "").setFontSize(fontSize))
+                        .setTextAlignment(TextAlignment.CENTER));
+
+                tabela.addCell(new Cell().add(new Paragraph(v.getStatusVenda() != null
+                                ? v.getStatusVenda().name() : "").setFontSize(fontSize))
+                        .setTextAlignment(TextAlignment.CENTER));
+            }
+
             document.add(tabela);
             document.close();
             return baos.toByteArray();
+
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar PDF de vendas selecionadas", e);
         }
