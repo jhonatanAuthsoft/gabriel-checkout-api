@@ -1,12 +1,15 @@
 package com.projeto.modelo.repository;
 
 import com.projeto.modelo.model.entity.Assinatura;
+import com.projeto.modelo.model.entity.Venda;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface AssinaturaRepository extends JpaRepository<Assinatura, Long> {
@@ -25,4 +28,5 @@ public interface AssinaturaRepository extends JpaRepository<Assinatura, Long> {
     )
     Page<Assinatura> buscarAssinaturasPorVendedor(@Param("idVendedor") Long idVendedor, Pageable pageable);
 
+    Assinatura findByVenda(Venda venda);
 }

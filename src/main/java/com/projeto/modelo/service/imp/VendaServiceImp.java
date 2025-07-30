@@ -14,6 +14,7 @@ import com.projeto.modelo.model.enums.StatusPagamento;
 import com.projeto.modelo.model.enums.StatusVenda;
 import com.projeto.modelo.repository.UsuarioRepository;
 import com.projeto.modelo.repository.VendaRepository;
+import com.projeto.modelo.service.AssinaturaService;
 import com.projeto.modelo.service.VendaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +42,9 @@ public class VendaServiceImp implements VendaService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private AssinaturaService assinaturaService;
 
     @Override
     public Long criarVenda(String token, CriarVendaRequestDTO dto, Boolean primeiraVenda) {
@@ -119,5 +123,14 @@ public class VendaServiceImp implements VendaService {
         Venda venda = vendaRepository.buscarPorVerificador(verificador).orElseThrow(() -> new ExcecoesCustomizada("Venda não encontrada! aq", HttpStatus.NOT_FOUND));
         vendaMapper.confirmarPagamento(venda, statusPagamento, statusVenda, dataPagamento);
         vendaRepository.save(venda);
+    }
+
+    @Override
+    public Boolean reembolsoConcluido(Long idVenda) {
+        Venda venda = vendaRepository.findById(idVenda).orElseThrow(() -> new ExcecoesCustomizada("Venda não encontrada!", HttpStatus.NOT_FOUND));
+        vendaMapper.reembolsoConcluido(venda);
+        vendaRepository.save(venda);
+        assinaturaService.cancelarAssinatura(venda);
+        return true;
     }
 }

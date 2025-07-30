@@ -25,4 +25,6 @@ public interface VendaService {
     void gerarPagamento(Long idVenda, AtualizarVendaDTO dto);
 
     void confirmarPagamento(String verificador, StatusPagamento statusPagamento, StatusVenda statusVenda, LocalDateTime dataPagamento);
+
+    Boolean reembolsoConcluido(Long idVenda);
 }

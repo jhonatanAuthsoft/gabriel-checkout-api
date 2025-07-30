@@ -107,6 +107,7 @@ public class VendaMapper {
                 .txid(venda.getTxid())
                 .codigoSolicitacao(venda.getCodigoSolicitacao())
                 .cupomUsado(venda.getCupomUsado())
+                .plano(venda.getPlano())
                 .origemCompra(venda.getOrigemCompra())
                 .metodoPagamento(venda.getMetodoPagamento())
                 .statusPagamento(venda.getStatusPagamento())
@@ -155,6 +156,15 @@ public class VendaMapper {
         venda.setCliente(cliente);
         venda.setVendedor(vendedor);
         venda.setDataReembolso(dto.dataReembolso());
+    }
+
+    public void reembolsoConcluido(Venda venda) {
+        if (venda.getStatusPagamento().equals(StatusPagamento.REEMBOLSO_SOLICITADO)) {
+            venda.setStatusPagamento(StatusPagamento.REEMBOLSADO);
+            venda.setDataReembolso(LocalDateTime.now());
+        } else {
+            throw new ExcecoesCustomizada("Para reembolsar um pedido ele tem que ter o status de Reembolso Solicitado!", HttpStatus.BAD_REQUEST);
+        }
     }
 
     public void gerarPagamento(Venda venda, AtualizarVendaDTO dto) {

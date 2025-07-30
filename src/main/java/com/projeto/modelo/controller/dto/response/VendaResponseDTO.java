@@ -1,6 +1,7 @@
 package com.projeto.modelo.controller.dto.response;
 
 import com.projeto.modelo.model.entity.Cupom;
+import com.projeto.modelo.model.entity.Plano;
 import com.projeto.modelo.model.entity.Produto;
 import com.projeto.modelo.model.entity.Usuario;
 import com.projeto.modelo.model.enums.*;
@@ -18,6 +19,7 @@ public record VendaResponseDTO(
         String txid,
         String codigoSolicitacao,
         Cupom cupomUsado,
+        Plano plano,
         OrigemCompra origemCompra,
         MetodoPagamento metodoPagamento,
         StatusPagamento statusPagamento,

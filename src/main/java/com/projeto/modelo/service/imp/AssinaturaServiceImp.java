@@ -7,6 +7,7 @@ import com.projeto.modelo.controller.dto.response.AssinaturaResponseDTO;
 import com.projeto.modelo.mapper.AssinaturaMapper;
 import com.projeto.modelo.model.entity.Assinatura;
 import com.projeto.modelo.model.entity.Usuario;
+import com.projeto.modelo.model.entity.Venda;
 import com.projeto.modelo.model.enums.PermissaoStatus;
 import com.projeto.modelo.repository.AssinaturaRepository;
 import com.projeto.modelo.repository.UsuarioRepository;
@@ -69,7 +70,7 @@ public class AssinaturaServiceImp implements AssinaturaService {
         PermissaoStatus permissao = usuarioSolicitante.getPermissao();
         Long usuarioId = usuarioSolicitante.getId();
         Long clienteId = assinatura.getCliente().getId();
-        Long vendedorId = assinatura.getVenda().getVendedor().getId();
+        Long vendedorId = assinatura.getVenda().getVendedor() != null ? assinatura.getVenda().getVendedor().getId() : 0;
 
         if (permissao.equals(PermissaoStatus.ADMIN) ||
             permissao.equals(PermissaoStatus.FUNCIONARIO) ||
@@ -79,5 +80,12 @@ public class AssinaturaServiceImp implements AssinaturaService {
         } else {
             throw new ExcecoesCustomizada("Você não tem permissão pra ver esse registro!", HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    @Override
+    public void cancelarAssinatura(Venda venda) {
+        Assinatura assinatura = assinaturaRepository.findByVenda(venda);
+        assinaturaMapper.cancelarAssinatura(assinatura);
+        assinaturaRepository.save(assinatura);
     }
 }

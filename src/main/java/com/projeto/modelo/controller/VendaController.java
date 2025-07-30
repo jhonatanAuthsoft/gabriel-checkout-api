@@ -47,5 +47,10 @@ public class VendaController {
         return new ResponseEntity<>(vendaService.atualizarPedidoAdmin(idVenda, dto), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PutMapping("/marcar-reembolsado/{idVenda}")
+    public ResponseEntity<Boolean> reembolsarPedido(@PathVariable Long idVenda) {
+        return new ResponseEntity<>(vendaService.reembolsoConcluido(idVenda), HttpStatus.OK);
+    }
 
 }

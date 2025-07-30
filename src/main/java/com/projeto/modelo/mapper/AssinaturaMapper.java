@@ -4,6 +4,7 @@ import com.projeto.modelo.configuracao.exeption.ExcecoesCustomizada;
 import com.projeto.modelo.controller.dto.request.AssinaturaRequestDTO;
 import com.projeto.modelo.controller.dto.response.AssinaturaResponseDTO;
 import com.projeto.modelo.model.entity.*;
+import com.projeto.modelo.model.enums.StatusAssinatura;
 import com.projeto.modelo.repository.ProdutoRepository;
 import com.projeto.modelo.repository.UsuarioRepository;
 import com.projeto.modelo.repository.VendaRepository;
@@ -82,6 +83,11 @@ public class AssinaturaMapper {
         assinatura.setDataInicio(dto.dataInicio());
         assinatura.setDataFim(dto.dataFim());
         assinatura.setDataCancelamentoDatado(dto.dataCancelamentoDatado());
+    }
+
+    public void cancelarAssinatura(Assinatura assinatura) {
+        assinatura.setStatusAssinatura(StatusAssinatura.CANCELADO);
+        assinatura.setDataFim(LocalDateTime.now().minusHours(1));
     }
 
     public AssinaturaResponseDTO toResponseDTO(Assinatura assinatura) {
