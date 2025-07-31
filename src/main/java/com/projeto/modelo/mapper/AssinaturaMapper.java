@@ -50,8 +50,8 @@ public class AssinaturaMapper {
         };
 
         return Assinatura.builder()
-                .produtos(venda.getProdutos())
-                .planos(venda.getPlanos())
+                .produtos(new ArrayList<>(venda.getProdutos()))
+                .planos(new ArrayList<>(venda.getPlanos()))
                 .cliente(venda.getCliente())
                 .venda(venda)
                 .tipoCobranca(venda.getTipoRecorrencia())
